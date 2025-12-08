@@ -3,7 +3,7 @@ import { collection, query, where, getDocs, writeBatch, doc } from "firebase/fir
 import { deleteUser, updateProfile } from "firebase/auth"
 import { db, auth } from "../firebase"
 import type { User } from "firebase/auth"
-import Header from "../components/Header"
+import Header from "../features/learning/components/Header"
 import { getUserProgress, updateDailyGoal } from "../utils/streakService"
 import { useTheme } from "../contexts/ThemeContext"
 

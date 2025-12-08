@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import type { User } from "firebase/auth"
-import type { FilterShape } from "../../types/filters"
-import { defaultFilters } from "../../types/filters"
+import type { FilterShape } from "../../../../types/filters"
+import { defaultFilters } from "../../../../types/filters"
 
 interface Props {
     // CHỈ DÙNG defaultValue + onChange → kiểu “uncontrolled with callback”

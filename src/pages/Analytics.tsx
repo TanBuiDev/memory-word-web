@@ -6,7 +6,7 @@ import type { Word } from "../types/word"
 import { getUserProgress } from "../utils/streakService"
 import { getUserAnalytics } from "../utils/analyticsService"
 import type { UserProgress } from "../types/userProgress"
-import Header from "../components/Header"
+import Header from "../features/learning/components/Header"
 
 interface AnalyticsData {
     totalAttempts: number

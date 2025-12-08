@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import type { Word } from "../types/word"
+import type { Word } from "../../../types/word"
 
 interface WordSearchBarProps {
     value: string

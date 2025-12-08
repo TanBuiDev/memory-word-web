@@ -1,8 +1,8 @@
 // src/pages/Dashboard.tsx
 import { useEffect, useState, useRef } from "react"
-import Sidebar from "../components/Sidebar"
-import QuickStartGuide from "../components/QuickStartGuide"
-import WordSearchBar from "../components/WordSearchBar"
+import Sidebar from "../features/home/components/Sidebar"
+import QuickStartGuide from "../features/home/components/QuickStartGuide"
+import WordSearchBar from "../features/vocabulary/components/WordSearchBar"
 import Header from "../components/layout/Header"
 import Background from "../components/layout/Background"
 import ScrollToTopButton from "../components/ui/ScrollToTopButton"
@@ -17,8 +17,8 @@ import {
 } from "firebase/firestore"
 
 import { db, auth } from "../firebase"
-import ManualToeicForm from "../components/ManualToeicForm"
-import AdvancedFilters from "../components/Filters/AdvancedFilters"
+import ManualToeicForm from "../features/vocabulary/components/ManualToeicForm"
+import AdvancedFilters from "../features/home/components/Filters/AdvancedFilters"
 import { warmUpAIModel } from "../utils/aiService"
 import { useAuthStore } from "../stores/useAuthStore"
 

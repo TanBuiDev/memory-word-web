@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import type { WordList } from "../types/list"
-import type { Word } from "../types/word"
+import type { WordList } from "../../../types/list"
+import type { Word } from "../../../types/word"
 import type { User } from "firebase/auth"
-import Dropdown from "./Dropdown"
+import Dropdown from "../../../components/ui/Dropdown"
 import StreakDisplay from "./StreakDisplay"
 
 interface SidebarProps {

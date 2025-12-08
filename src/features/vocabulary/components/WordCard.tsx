@@ -1,7 +1,7 @@
 import { useState } from "react"
-import type { Word } from "../types/word"
-import type { WordList } from "../types/list"
-import Dropdown from "./Dropdown"
+import type { Word } from "../../../types/word"
+import type { WordList } from "../../../types/list"
+import Dropdown from "../../../components/ui/Dropdown"
 
 interface Props {
     word: Word & { needsReview?: boolean; seenCount?: number; incorrectCount?: number; lastSeenAt?: number | null }
@@ -26,17 +26,15 @@ export default function WordCard({
     const [showConfirm, setShowConfirm] = useState(false)
     const [wordToDelete, setWordToDelete] = useState<Word | null>(null)
 
-
-
     return (
-        <div className={`bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition ${word.memorized ? "opacity-50" : ""}`}>
+        <div className={`bg-white p-6 rounded-xl border border-gray-200 hover:shadow-lg transition ${word.memorized ? "opacity-50" : ""} flex flex-col min-h-[200px]`}>
             {/* Header row */}
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start mb-2">
                 <div className="text-lg leading-relaxed flex-1">
                     <span className={`text-2xl font-bold text-gray-900 ${word.memorized ? "line-through" : ""}`}>{word.term}</span>{" "}
                     {pos && <span className="text-gray-600">({pos})</span>}
                     {shortMeaning && <span className="text-gray-700">: {shortMeaning}</span>}
-                    
+
                     {/* Needs Review Badge */}
                     {word.needsReview && (
                         <div className="inline-block ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">
@@ -46,7 +44,7 @@ export default function WordCard({
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 items-center">
                     {/* toggle */}
                     <div className="flex items-center gap-2 select-none">
                         <span className={`text-sm font-medium ${word.memorized ? "text-green-600" : "text-gray-500"}`}>
@@ -54,7 +52,6 @@ export default function WordCard({
                         </span>
                         <button
                             onClick={onToggleMemorized}
-                            // Giữ nguyên màu xanh lá (green) cho trạng thái ĐÃ NHỚ
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${word.memorized ? "bg-green-500" : "bg-gray-300"}`}
                         >
                             <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${word.memorized ? "translate-x-5" : "translate-x-1"}`}></span>
@@ -62,59 +59,57 @@ export default function WordCard({
                     </div>
 
                     <button
-                        className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-red-100 text-red-700 hover:bg-red-200 transition"
+                        className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-red-100 text-red-700 hover:bg-red-200 transition min-w-[80px] justify-center"
                         onClick={() => {
                             setWordToDelete(word)
                             setShowConfirm(true)
                         }}
                     >
-                        <span>❌</span>
+                        <span>❌ Xóa</span>
                     </button>
                 </div>
-                {showConfirm && (
-                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-                        <div className="bg-white rounded-2xl shadow-xl p-6 w-80 border border-red-200 animate-scaleIn">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full">
-                                    ❗
-                                </div>
-                                <h2 className="text-xl font-semibold text-gray-800">
-                                    Xóa từ "<span className="font-bold text-red-600">{wordToDelete?.term}</span>"?
-                                </h2>
-                            </div>
-
-                            <p className="text-gray-600 mt-3">
-                                Từ này sẽ bị xóa khỏi danh sách vĩnh viễn.
-                            </p>
-
-                            <div className="flex justify-end mt-6 gap-3">
-                                <button
-                                    className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
-                                    onClick={() => setShowConfirm(false)}
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    className="px-4 py-2 rounded-lg bg-red-500 text-white shadow hover:bg-red-600"
-                                    onClick={() => { onDelete(); setShowConfirm(false); }}
-                                >
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                )}
             </div>
 
+            {showConfirm && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl shadow-xl p-6 w-80 border border-red-200 animate-scaleIn">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full">
+                                ❗
+                            </div>
+                            <h2 className="text-xl font-semibold text-gray-800">
+                                Xóa từ "<span className="font-bold text-red-600">{wordToDelete?.term}</span>"?
+                            </h2>
+                        </div>
+
+                        <p className="text-gray-600 mt-3">
+                            Từ này sẽ bị xóa khỏi danh sách vĩnh viễn.
+                        </p>
+
+                        <div className="flex justify-end mt-6 gap-3">
+                            <button
+                                className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                                onClick={() => setShowConfirm(false)}
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                className="px-4 py-2 rounded-lg bg-red-500 text-white shadow hover:bg-red-600"
+                                onClick={() => { onDelete(); setShowConfirm(false); }}
+                            >
+                                Xóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* phonetic + audio */}
-            <div className="flex items-center gap-3 text-gray-500 mt-2">
+            <div className="flex items-center gap-3 text-gray-500 mb-3">
                 {word.phonetic && <span>{word.phonetic}</span>}
                 {word.audio && (
                     <button
                         onClick={() => onPlayAudio(word.audio)}
-                        // 🎨 Thay thế hover:text-blue-600 bằng hover:text-cyan-600
                         className="hover:text-cyan-600 transition"
                     >
                         🔊
@@ -123,13 +118,13 @@ export default function WordCard({
             </div>
 
             {/* Stat Counters (seenCount, incorrectCount, lastSeen) */}
-            <div className="mt-3 flex gap-3 text-xs">
+            <div className="mb-3 flex gap-3 text-xs">
                 {/* Seen Count */}
                 <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg text-blue-700 font-semibold">
                     <span>👀</span>
                     <span>Xem: {word.seenCount || 0}</span>
                 </div>
-                
+
                 {/* Incorrect Count */}
                 {word.incorrectCount && word.incorrectCount > 0 && (
                     <div className="flex items-center gap-1 bg-red-50 px-2 py-1 rounded-lg text-red-700 font-semibold">
@@ -153,64 +148,56 @@ export default function WordCard({
             </div>
 
             {/* Add note */}
-            <div className="mt-5">
+            <div className="mb-3">
                 <button
                     onClick={() => setEditingNote(true)}
-                    // 🎨 Thay thế text-indigo-600 bằng text-cyan-600 (Màu phụ)
                     className="text-cyan-600 hover:text-cyan-800 font-medium"
                 >
                     ➕ Add Note
                 </button>
             </div>
 
-            {
-                word.note && !editingNote && (
-                    <div className="mt-3 bg-gray-100 p-3 rounded-lg text-gray-800 flex justify-between items-center">
-                        <span>📝 {word.note}</span>
-                        <div className="flex gap-2 text-sm">
-                            <button
-                                // 🎨 Thay thế text-blue-600 bằng text-cyan-600
-                                className="text-cyan-600 hover:text-cyan-800"
-                                onClick={() => { setTempNote(word.note ?? ""); setEditingNote(true) }}
-                            >
-                                Sửa
-                            </button>
-                            <button className="text-red-600 hover:text-red-800" onClick={() => onAddNote("")}>
-                                Xóa
-                            </button>
-                        </div>
-                    </div>
-                )
-            }
-
-            {
-                editingNote && (
-                    <div className="mt-3 flex gap-2 items-center">
-                        <input
-                            // 🎨 Thay thế focus:ring-indigo-400 bằng focus:ring-cyan-400
-                            className="flex-1 border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-cyan-400"
-                            value={tempNote}
-                            placeholder="Nhập ghi chú..."
-                            onChange={(e) => setTempNote(e.target.value)}
-                        />
+            {word.note && !editingNote && (
+                <div className="mb-3 bg-gray-100 p-3 rounded-lg text-gray-800 flex justify-between items-center">
+                    <span>📝 {word.note}</span>
+                    <div className="flex gap-2 text-sm">
                         <button
-                            // 🎨 Thay thế bg-indigo-600 bằng bg-cyan-600
-                            className="px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700"
-                            onClick={() => { onAddNote(tempNote); setEditingNote(false) }}
-                        >Lưu</button>
-                        <button className="px-3 py-1 text-gray-600 hover:text-gray-900" onClick={() => setEditingNote(false)}>Hủy</button>
+                            className="text-cyan-600 hover:text-cyan-800"
+                            onClick={() => { setTempNote(word.note ?? ""); setEditingNote(true) }}
+                        >
+                            Sửa
+                        </button>
+                        <button className="text-red-600 hover:text-red-800" onClick={() => onAddNote("")}>
+                            Xóa
+                        </button>
                     </div>
-                )
-            }
+                </div>
+            )}
 
-            {/* POS tabs */}
-            <div className="relative mt-4">
-                <div className="flex flex-wrap gap-2 py-1">
+            {editingNote && (
+                <div className="mb-3 flex gap-2 items-center">
+                    <input
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-cyan-400"
+                        value={tempNote}
+                        placeholder="Nhập ghi chú..."
+                        onChange={(e) => setTempNote(e.target.value)}
+                    />
+                    <button
+                        className="px-3 py-1 bg-cyan-600 text-white rounded hover:bg-cyan-700 min-w-[60px]"
+                        onClick={() => { onAddNote(tempNote); setEditingNote(false) }}
+                    >Lưu</button>
+                    <button className="px-3 py-1 text-gray-600 hover:text-gray-900 min-w-[60px]" onClick={() => setEditingNote(false)}>Hủy</button>
+                </div>
+            )}
+
+            {/* POS tabs and Add to list - Now on the same line */}
+            <div className="mt-auto pt-4 flex justify-between items-center">
+                {/* POS tabs */}
+                <div className="flex flex-wrap gap-2">
                     {word.meanings.map((m, i) => (
                         <button
                             key={i}
                             onClick={() => setOpenedIndex(openedIndex === i ? null : i)}
-                            // 🎨 Thay thế bg-indigo-600 bằng bg-fuchsia-600
                             className={`px-3 py-1 rounded-lg text-sm font-medium transition ${openedIndex === i ? "bg-fuchsia-600 text-white shadow" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                                 }`}
                         >
@@ -219,23 +206,11 @@ export default function WordCard({
                     ))}
                 </div>
 
-                {openedIndex !== null && (
-                    <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
-                        {word.meanings[openedIndex].definitions.map((d, idx) => (
-                            <div key={idx} className="text-gray-800 leading-relaxed">
-                                • {d.definition}
-                                {d.example && <p className="text-gray-500 text-sm italic mt-1">"{d.example}"</p>}
-                            </div>
-                        ))}
-                    </div>
-                )}
-
                 {/* Add to list */}
-                <div className="absolute top-0 right-0">
+                <div className="ml-4">
                     <Dropdown
-                        // ... (Dropdown component cần được chỉnh sửa riêng) ...
                         label={currentList ? currentList.name : "Add to List"}
-                        width="w-30"
+                        width="w-40"
                         items={[
                             { label: "— None —", value: "__none__" },
                             ...lists.map(l => ({ label: l.name, value: l.id }))
@@ -244,6 +219,18 @@ export default function WordCard({
                     />
                 </div>
             </div>
-        </div >
+
+            {/* Definitions (when POS tab is opened) */}
+            {openedIndex !== null && (
+                <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
+                    {word.meanings[openedIndex].definitions.map((d, idx) => (
+                        <div key={idx} className="text-gray-800 leading-relaxed">
+                            • {d.definition}
+                            {d.example && <p className="text-gray-500 text-sm italic mt-1">"{d.example}"</p>}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     )
 }

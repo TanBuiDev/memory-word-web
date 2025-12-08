@@ -6,12 +6,12 @@ import type { Word } from "../types/word"
 import { getSmartQuizList, updateWordRecall, type WordWithRecall } from "../utils/aiService"
 import { updateStreak, recordQuizCompletion } from "../utils/streakService"
 
-import Flashcard from "../components/quiz/Flashcard"
-import MultipleChoice from "../components/quiz/MultipleChoice"
-import FillInBlank from "../components/quiz/FillInBlank"
-import Header from "../components/Header"
-import StreakCelebration from "../components/StreakCelebration"
-import WelcomeModal from "../components/WelcomeModal"
+import Flashcard from "../features/learning/components/quiz/Flashcard"
+import MultipleChoice from "../features/learning/components/quiz/MultipleChoice"
+import FillInBlank from "../features/learning/components/quiz/FillInBlank"
+import Header from "../features/learning/components/Header"
+import StreakCelebration from "../features/learning/components/StreakCelebration"
+import WelcomeModal from "../features/learning/components/WelcomeModal"
 import { Link } from "react-router-dom"
 
 interface QuizResult {

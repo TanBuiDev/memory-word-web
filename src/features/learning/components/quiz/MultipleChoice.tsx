@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
-import type { Word } from "../../types/word"
-import { logQuiz } from "../../utils/logQuiz"
+import type { Word } from "../../../../types/word"
+import { logQuiz } from "../../../../utils/logQuiz"
 
 interface MultipleChoiceProps {
     words: Word[]

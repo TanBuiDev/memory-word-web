@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { getUserProgress } from "../utils/streakService"
-import type { UserProgress } from "../types/userProgress"
+import { getUserProgress } from "../../../utils/streakService"
+import type { UserProgress } from "../../../types/userProgress"
 
 interface StreakDisplayProps {
     userId: string

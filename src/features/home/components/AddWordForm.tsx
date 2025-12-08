@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import WordInput from "../../../components/WordInput";
+import WordInput from "../../../features/vocabulary/components/WordInput";
 
 interface AddWordFormProps {
     term: string;

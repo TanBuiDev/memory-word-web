@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
-import Flashcard from "../components/quiz/Flashcard"
-import MultipleChoice from "../components/quiz/MultipleChoice"
-import FillInBlank from "../components/quiz/FillInBlank"
+import Flashcard from "../features/learning/components/quiz/Flashcard"
+import MultipleChoice from "../features/learning/components/quiz/MultipleChoice"
+import FillInBlank from "../features/learning/components/quiz/FillInBlank"
 import { collection, getDocs, query, where, addDoc, serverTimestamp, updateDoc, doc, increment } from "firebase/firestore"
 import { db } from "../firebase"
 import type { Word } from "../types/word"
 import type { User } from "firebase/auth"
-import Header from "../components/Header"
+import Header from "../features/learning/components/Header"
 
 export default function Quiz({ user }: { user: User }) {
     const [words, setWords] = useState<Word[]>([])

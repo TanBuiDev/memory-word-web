@@ -1,6 +1,6 @@
 import type { Word } from "../../../types/word";
 import type { WordList } from "../../../types/list";
-import WordCard from "../../../components/WordCard";
+import WordCard from "../../../features/vocabulary/components/WordCard";
 
 interface WordListSectionProps {
     words: Word[];
@@ -36,7 +36,7 @@ export default function WordListSection({
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {words.map(word => (
                 <div key={word.id} id={`word-${word.id}`} className="h-full">
                     <WordCard

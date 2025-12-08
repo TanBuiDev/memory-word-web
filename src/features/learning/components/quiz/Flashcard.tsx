@@ -1,6 +1,6 @@
 import { useState } from "react"
-import type { Word } from "../../types/word"
-import { logQuiz } from "../../utils/logQuiz"
+import type { Word } from "../../../../types/word"
+import { logQuiz } from "../../../../utils/logQuiz"
 
 interface FlashcardProps {
     word: Word

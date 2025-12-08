@@ -1,4 +1,4 @@
-import type { WordList } from "../types/list"
+import type { WordList } from "../../../types/list"
 
 interface Props {
     lists: WordList[]
