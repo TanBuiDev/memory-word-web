@@ -1,0 +1,16 @@
+{
+    "TIMESTEP": 10,
+    "FEATURES": [
+        "delta",
+        "history_seen",
+        "history_correct",
+        "correctness_rate"
+    ],
+    "columns_to_scale": [
+        "delta",
+        "history_seen",
+        "history_correct",
+        "correctness_rate",
+        "p_recall"
+    ]
+}

@@ -1,0 +1,8 @@
+firebase-functions
+firebase-admin
+tensorflow
+scikit-learn
+joblib
+pandas
+numpy
+Flask-Cors

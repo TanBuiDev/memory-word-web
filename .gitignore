@@ -1,0 +1,102 @@
+# ------------------------------------------------------
+# 1. CORE DEPENDENCIES & LOGS
+# ------------------------------------------------------
+node_modules/
+.pnpm-store/
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------
+# 2. BUILD OUTPUT
+# ------------------------------------------------------
+dist/
+dist-ssr/
+coverage/
+*.local
+
+# ------------------------------------------------------
+# 3. ENVIRONMENT VARIABLES (QUAN TRỌNG)
+# ------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ------------------------------------------------------
+# 4. IDE & EDITOR FILES
+# ------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.tsbuildinfo
+
+# VS Code (Giữ lại extensions.json để gợi ý plugin cho team, còn lại bỏ qua)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ------------------------------------------------------
+# 5. FIREBASE & CLOUD FUNCTIONS
+# ------------------------------------------------------
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+firebase.json.backup
+
+# ------------------------------------------------------
+# 6. PYTHON / AI BACKEND (Cho thư mục functions)
+# ------------------------------------------------------
+# Virtual Environment
+venv/
+env/
+.venv/
+functions/venv/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Distribution
+.Python
+build/
+develop-eggs/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# AI Data (Notebooks & Models)
+.ipynb_checkpoints
+
+# (Bỏ comment dòng dưới nếu file model quá nặng > 100MB)
+# *.h5
+# *.keras
+# *.tflite
+
+# ------------------------------------------------------
+# 7. TESTING REPORTS
+# ------------------------------------------------------
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
