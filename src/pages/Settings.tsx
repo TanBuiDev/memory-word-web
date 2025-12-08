@@ -5,7 +5,7 @@ import { db, auth } from "../firebase"
 import type { User } from "firebase/auth"
 import Header from "../features/learning/components/Header"
 import { getUserProgress, updateDailyGoal } from "../utils/streakService"
-import { useTheme } from "../contexts/ThemeContext"
+import { useTheme } from "../contexts/themeContext"
 
 export default function Settings({ user }: { user: User }) {
     const { theme, setTheme } = useTheme()
@@ -17,17 +17,17 @@ export default function Settings({ user }: { user: User }) {
     const [deleteConfirmText, setDeleteConfirmText] = useState("")
 
     useEffect(() => {
-        loadSettings()
-    }, [user])
-
-    const loadSettings = async () => {
-        try {
-            const progress = await getUserProgress(user.uid)
-            setDailyGoal(progress.dailyGoal)
-        } catch (error) {
-            console.error("Error loading settings:", error)
+        const loadSettings = async () => {
+            try {
+                const progress = await getUserProgress(user.uid)
+                setDailyGoal(progress.dailyGoal)
+            } catch (error) {
+                console.error("Error loading settings:", error)
+            }
         }
-    }
+
+        loadSettings()
+    }, [user.uid])
 
     const handleSaveDailyGoal = async () => {
         setLoading(true)
@@ -105,12 +105,17 @@ export default function Settings({ user }: { user: User }) {
             setTimeout(() => {
                 auth.signOut()
             }, 2000)
-        } catch (error: any) {
+        } catch (error) {
             console.error("Error deleting account:", error)
-            if (error.code === "auth/requires-recent-login") {
-                showMessage("error", "Vui lòng đăng nhập lại để xóa tài khoản")
+            if (typeof error === "object" && error !== null && "code" in error) {
+                const err = error as { code?: string; message?: string }
+                if (err.code === "auth/requires-recent-login") {
+                    showMessage("error", "Vui lòng đăng nhập lại để xóa tài khoản")
+                } else {
+                    showMessage("error", "Lỗi khi xóa tài khoản: " + (err.message ?? ""))
+                }
             } else {
-                showMessage("error", "Lỗi khi xóa tài khoản: " + error.message)
+                showMessage("error", "Lỗi khi xóa tài khoản")
             }
         } finally {
             setLoading(false)
@@ -125,7 +130,7 @@ export default function Settings({ user }: { user: User }) {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-fuchsia-50 via-rose-50 to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="min-h-screen bg-linear-to-br from-fuchsia-50 via-rose-50 to-violet-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
             <Header user={user} simple />
 
             <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -138,8 +143,8 @@ export default function Settings({ user }: { user: User }) {
                 {/* Message Toast */}
                 {message && (
                     <div className={`fixed top-20 right-4 z-50 p-4 rounded-xl shadow-lg animate-scale-in ${message.type === "success"
-                            ? "bg-green-500 text-white"
-                            : "bg-red-500 text-white"
+                        ? "bg-green-500 text-white"
+                        : "bg-red-500 text-white"
                         }`}>
                         {message.text}
                     </div>
@@ -205,8 +210,8 @@ export default function Settings({ user }: { user: User }) {
                                 <button
                                     onClick={() => setTheme("light")}
                                     className={`p-4 rounded-xl border-2 transition ${theme === "light"
-                                            ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
-                                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                                        ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
+                                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                                         }`}
                                 >
                                     <div className="text-2xl mb-2">☀️</div>
@@ -216,8 +221,8 @@ export default function Settings({ user }: { user: User }) {
                                 <button
                                     onClick={() => setTheme("dark")}
                                     className={`p-4 rounded-xl border-2 transition ${theme === "dark"
-                                            ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
-                                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                                        ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
+                                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                                         }`}
                                 >
                                     <div className="text-2xl mb-2">🌙</div>
@@ -227,8 +232,8 @@ export default function Settings({ user }: { user: User }) {
                                 <button
                                     onClick={() => setTheme("system")}
                                     className={`p-4 rounded-xl border-2 transition ${theme === "system"
-                                            ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
-                                            : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                                        ? "border-fuchsia-500 bg-fuchsia-50 dark:bg-fuchsia-900/20"
+                                        : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
                                         }`}
                                 >
                                     <div className="text-2xl mb-2">💻</div>

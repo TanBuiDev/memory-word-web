@@ -32,7 +32,7 @@ export default function Header({
                     )}
 
                     <Link to="/" className="flex items-center gap-2">
-                        <div className="text-2xl font-bold bg-gradient-to-r from-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
+                        <div className="text-2xl font-bold bg-linear-to-r from-fuchsia-600 to-pink-600 bg-clip-text text-transparent">
                             MemoryWord
                         </div>
                     </Link>

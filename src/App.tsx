@@ -15,12 +15,11 @@ import Register from './features/auth/pages/Register';
 import Background from "./components/layout/Background"
 import { useAuthStore } from "./stores/useAuthStore";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { ThemeProvider } from "./contexts/ThemeProvider";
 
 // --- CÁC COMPONENT BẢO VỆ ROUTE (Route Guards) ---
 
 // 1. ProtectedRoute: Chỉ cho phép User đã đăng nhập vào
-// Ví dụ: Trang Dashboard, Trang học bài
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuthStore();
 
@@ -40,7 +39,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 // 2. PublicRoute: Chỉ cho phép User CHƯA đăng nhập vào
-// Ví dụ: Trang Login, Register (Đã login rồi thì không cần vào đây nữa)
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuthStore();
 
@@ -52,8 +50,8 @@ const PublicRoute = ({ children }: { children: JSX.Element }) => {
     );
   }
 
-  // Nếu đã có user -> Đá thẳng vào Home
-  if (user) return <Navigate to="/home" replace />;
+  // Nếu đã có user -> Đá thẳng vào Dashboard
+  if (user) return <Navigate to="/dashboard" replace />; // ĐỔI TỪ /home THÀNH /dashboard
 
   return children;
 };
@@ -125,7 +123,7 @@ export default function App() {
           } />
 
           {/* Route Bảo vệ: Phải login mới xem được */}
-          <Route path="/home" element={
+          <Route path="/dashboard" element={ // ĐỔI TỪ /home THÀNH /dashboard
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>

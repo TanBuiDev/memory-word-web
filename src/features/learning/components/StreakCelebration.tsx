@@ -53,11 +53,11 @@ export default function StreakCelebration({ streak, isNewRecord, onClose }: Stre
     }
 
     return (
-        <div 
+        <div
             className={`fixed inset-0 bg-black/60 flex items-center justify-center z-50 transition-opacity duration-300 ${show ? 'opacity-100' : 'opacity-0'}`}
             onClick={handleClose}
         >
-            <div 
+            <div
                 className={`bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 text-center transform transition-all duration-300 ${show ? 'scale-100' : 'scale-75'}`}
                 onClick={(e) => e.stopPropagation()}
             >
@@ -67,7 +67,7 @@ export default function StreakCelebration({ streak, isNewRecord, onClose }: Stre
                 </div>
 
                 {/* Title */}
-                <h2 className={`text-3xl font-extrabold mb-3 bg-gradient-to-r ${color} bg-clip-text text-transparent`}>
+                <h2 className={`text-3xl font-extrabold mb-3 bg-linear-to-r ${color} bg-clip-text text-transparent`}>
                     {title}
                 </h2>
 
@@ -78,7 +78,7 @@ export default function StreakCelebration({ streak, isNewRecord, onClose }: Stre
 
                 {/* New Record Badge */}
                 {isNewRecord && (
-                    <div className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-4 animate-pulse">
+                    <div className="inline-block bg-linear-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-4 animate-pulse">
                         🎉 KỶ LỤC MỚI! 🎉
                     </div>
                 )}
@@ -91,7 +91,7 @@ export default function StreakCelebration({ streak, isNewRecord, onClose }: Stre
                 {/* Close Button */}
                 <button
                     onClick={handleClose}
-                    className={`w-full py-3 bg-gradient-to-r ${color} text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all`}
+                    className={`w-full py-3 bg-linear-to-r ${color} text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all`}
                 >
                     Tiếp tục học! 🚀
                 </button>

@@ -1,4 +1,3 @@
-// src/pages/Dashboard.tsx
 import { useEffect, useState, useRef } from "react"
 import Sidebar from "../features/home/components/Sidebar"
 import QuickStartGuide from "../features/home/components/QuickStartGuide"
@@ -271,7 +270,7 @@ export default function Dashboard() {
 
     // RENDER
     return (
-        <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-purple-50">
+        <div className="min-h-screen">
             <Header />
             <Background />
 

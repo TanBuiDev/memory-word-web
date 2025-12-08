@@ -25,7 +25,7 @@ export default function Login() {
 
     return (
         // 🎨 Nền Gradient: Đồng bộ (Fuchsia và Cyan nhạt)
-        <div className="min-h-screen flex bg-gradient-to-tr from-fuchsia-50 to-cyan-50">
+        <div className="min-h-screen flex bg-linear-to-tr from-fuchsia-50 to-cyan-50">
 
             {/* ⬅️ KHỐI GIỚI THIỆU (LEFT SIDE) */}
             {/* Ẩn trên màn hình nhỏ */}
@@ -74,7 +74,7 @@ export default function Login() {
                 <div
                     // 🎨 Bo góc lớn hơn (sử dụng giá trị tùy chỉnh hoặc rounded-3xl/4xl)
                     // và thêm khoảng padding trên dưới
-                    className="max-w-md w-full p-10 bg-white rounded-[2rem] shadow-2xl space-y-6"
+                    className="max-w-md w-full p-10 bg-white rounded-4xl shadow-2xl space-y-6"
                 >
                     {/* 1. Logo/Tên Ứng dụng */}
                     <div className="flex flex-col items-center mb-6">

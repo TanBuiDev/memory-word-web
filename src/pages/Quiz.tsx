@@ -89,7 +89,7 @@ export default function Quiz({ user }: { user: User }) {
             // shuffle
             for (let i = pool.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1))
-                ;[pool[i], pool[j]] = [pool[j], pool[i]]
+                    ;[pool[i], pool[j]] = [pool[j], pool[i]]
             }
 
             let q = pool
@@ -124,7 +124,7 @@ export default function Quiz({ user }: { user: User }) {
 
         for (let i = pool.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1))
-            ;[pool[i], pool[j]] = [pool[j], pool[i]]
+                ;[pool[i], pool[j]] = [pool[j], pool[i]]
         }
 
         let q = pool
@@ -177,7 +177,7 @@ export default function Quiz({ user }: { user: User }) {
     return (
         <div>
             {/* 🎨 Nền Gradient: Đồng bộ với Home (fuchsia/rose/violet nhẹ) */}
-            <div className="min-h-screen bg-gradient-to-br from-fuchsia-50 via-rose-50 to-violet-50 py-1">
+            <div className="min-h-screen bg-linear-to-br from-fuchsia-50 via-rose-50 to-violet-50 py-1">
                 <Header user={user} simple />
                 <div className="max-w-xl mx-auto my-10 bg-white rounded-2xl shadow-xl p-8 space-y-6">
                     {/* 🎨 Tiêu đề: Dùng màu fuchsia đậm */}
