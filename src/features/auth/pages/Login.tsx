@@ -19,10 +19,11 @@ const Login = () => {
 
         try {
             // Gọi API Firebase
-            const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+            await signInWithEmailAndPassword(auth, data.email, data.password);
             // Firebase auth state sẽ tự động cập nhật qua onAuthStateChanged trong App.tsx
             // Không cần setUser thủ công vì App.tsx đã xử lý
             navigate('/');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setErrorMsg('Đăng nhập thất bại: ' + (error.message || 'Vui lòng thử lại'));
         } finally {
@@ -34,12 +35,13 @@ const Login = () => {
     const handleGoogleLogin = async () => {
         setIsLoading(true);
         setErrorMsg('');
-        
+
         try {
             // Gọi API Firebase Google Sign-In
             await signInWithPopup(auth, provider);
             // Firebase auth state sẽ tự động cập nhật qua onAuthStateChanged trong App.tsx
             navigate('/');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             setErrorMsg('Đăng nhập Google thất bại: ' + (error.message || 'Vui lòng thử lại'));
         } finally {
