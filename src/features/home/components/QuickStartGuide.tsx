@@ -41,7 +41,7 @@ export default function QuickStartGuide({ onComplete, userHasWords }: QuickStart
             title: "Smart Quiz - Học thông minh với AI",
             description: "Smart Quiz sử dụng AI để chọn những từ bạn cần ôn tập nhất. Hãy thử ngay để trải nghiệm!",
             icon: "🧠",
-            target: 'a[href="/smart-quiz"]',
+            target: 'a[href="/smart-quiz"], [data-tour="smart-quiz"]',
             position: "left"
         },
         {
@@ -49,7 +49,7 @@ export default function QuickStartGuide({ onComplete, userHasWords }: QuickStart
             title: "Theo dõi tiến độ",
             description: "Xem thống kê chi tiết về quá trình học của bạn: số ngày liên tiếp, độ chính xác, và những từ khó nhất.",
             icon: "📊",
-            target: 'a[href="/analytics"]',
+            target: 'a[href="/analytics"], [data-tour="analytics"]',
             position: "left"
         },
         {
@@ -198,10 +198,10 @@ export default function QuickStartGuide({ onComplete, userHasWords }: QuickStart
                         <div
                             key={index}
                             className={`h-1.5 rounded-full transition-all ${index === currentStep
-                                    ? "w-6 bg-fuchsia-600"
-                                    : index < currentStep
-                                        ? "w-1.5 bg-fuchsia-300"
-                                        : "w-1.5 bg-gray-200"
+                                ? "w-6 bg-fuchsia-600"
+                                : index < currentStep
+                                    ? "w-1.5 bg-fuchsia-300"
+                                    : "w-1.5 bg-gray-200"
                                 }`}
                         />
                     ))}

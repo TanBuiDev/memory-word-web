@@ -1,10 +1,25 @@
 import { useState } from 'react';
 import { Database, Brain, Activity, Map, Settings, TrendingUp, Info, ChevronDown, ChevronUp, Image as ImageIcon, Code, Video } from 'lucide-react';
 import behaviorDataImg from '../../../assets/Detailv2.png';
+import SSALSTMImg from '../../../assets/SSA_LSTM.png';
 
 const SSALSTMDiagram = () => {
     const [activeStep, setActiveStep] = useState<string>("");
     const [activeMediaTab, setActiveMediaTab] = useState<string>("image");
+
+    // --- HÀM HELPER: CHUYỂN LINK YOUTUBE SANG DẠNG EMBED ---
+    const getEmbedUrl = (url: string | undefined) => {
+        if (!url) return "";
+        // Nếu là link xem thường (watch?v=ID) -> Chuyển thành embed/ID
+        if (url.includes("watch?v=")) {
+            return url.replace("watch?v=", "embed/");
+        }
+        // Nếu là link rút gọn (youtu.be/ID) -> Chuyển thành youtube.com/embed/ID
+        if (url.includes("youtu.be/")) {
+            return url.replace("youtu.be/", "youtube.com/embed/");
+        }
+        return url; // Nếu đã là link embed hoặc link khác thì giữ nguyên
+    };
 
     // Dữ liệu Steps
     const steps = [
@@ -13,7 +28,7 @@ const SSALSTMDiagram = () => {
             title: "1. English Learner Behavior Data",
             icon: <Database size={20} />,
             desc: "Thu thập dữ liệu Big Data từ lịch sử học tập: thời gian phản hồi, số lần quên, kết quả bài kiểm tra.",
-            detailedDesc: "Hệ thống thu thập dữ liệu hành vi học tập từ 2,500+ người dùng, bao gồm: thời gian phản hồi cho mỗi từ vựng, số lần quên/lần nhớ, kết quả bài kiểm tra, tần suất học tập, và thời gian học mỗi phiên. Dữ liệu được xử lý real-time và lưu trữ trong cơ sở dữ liệu NoSQL để phân tích nâng cao.",
+            detailedDesc: "Hệ thống thu thập dữ liệu hành vi học tập từ người dùng, bao gồm: thời gian phản hồi cho mỗi từ vựng, số lần quên/lần nhớ, kết quả bài kiểm tra, tần suất học tập, và thời gian học mỗi phiên. Dữ liệu được xử lý real-time và lưu trữ trong cơ sở dữ liệu NoSQL để phân tích nâng cao.",
             position: { x: 50, y: 150 },
             chartData: [100, 80, 60, 25, 20, 0],
             analyticsData: [0, 25, 10, 10, 20, 10, 15, 56, 25],
@@ -33,7 +48,7 @@ const collectLearningData = (userId, wordId, response) => {
     };
 };`,
                 // 3. CẬP NHẬT VIDEO LIÊN QUAN (Big Data in Education)
-                video: "https://www.youtube.com/embed/Sxvh4pNzfCc"
+                video: "https://www.youtube.com/watch?v=_AHtsFE9UDM"
             }
         },
         {
@@ -63,7 +78,7 @@ def sparrow_search_algorithm(population, iterations):
             if fitness(sparrow) > fitness(best_solution):
                 best_solution = sparrow
     return best_solution`,
-                video: "https://www.youtube.com/embed/7NN7ggI7-OE"
+                video: "https://www.youtube.com/watch?v=TNrCbOFwPmU"
             }
         },
         {
@@ -76,7 +91,7 @@ def sparrow_search_algorithm(population, iterations):
             improvement: "+38%",
             stats: ["Time-series analysis", "Memory patterns", "Adaptive learning"],
             media: {
-                image: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?auto=format&fit=crop&w=800",
+                image: SSALSTMImg,
                 code: `# LSTM Model with SSA-optimized parameters
 class SSALSTMModel(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers):
@@ -124,7 +139,7 @@ function generateLearningPath(userId, predictions) {
     });
     return optimizeSchedule(path);
 }`,
-                video: "https://www.youtube.com/embed/9bZkp7q19f0"
+                video: "https://www.youtube.com/watch?v=wAM19axO3IM"
             }
         }
     ];
@@ -603,7 +618,7 @@ function generateLearningPath(userId, predictions) {
                                                         <div>
                                                             <div className="aspect-video bg-gray-800 rounded-lg mb-2 overflow-hidden">
                                                                 <iframe
-                                                                    src={step.media?.video}
+                                                                    src={getEmbedUrl(step.media?.video)}
                                                                     title={step.title}
                                                                     className="w-full h-full"
                                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

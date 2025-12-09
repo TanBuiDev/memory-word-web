@@ -159,7 +159,7 @@ export default function Sidebar({
                             </div>
                         </Link>
 
-                        <Link to="/smart-quiz" onClick={onClose} className="block">
+                        <Link to="/smart-quiz" onClick={onClose} className="block" data-tour="smart-quiz">
                             <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/50 transition-all duration-300 cursor-pointer">
                                 <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 group-hover:scale-110 transition-transform">
                                     <Brain className="h-5 w-5 text-white" />
@@ -190,7 +190,7 @@ export default function Sidebar({
                             </Link>
                         )}
 
-                        <Link to="/analytics" onClick={onClose} className="block">
+                        <Link to="/analytics" onClick={onClose} className="block" data-tour="analytics">
                             <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 transition-all duration-300 cursor-pointer">
                                 <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:scale-110 transition-transform">
                                     <BarChart3 className="h-5 w-5 text-white" />
