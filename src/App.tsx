@@ -31,7 +31,6 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       </div>
     );
   }
-
   // Nếu không có user -> Đá về trang Login
   if (!user) return <Navigate to="/" replace />;
 

@@ -24,5 +24,5 @@ export const db = getFirestore(app)
 export const auth = getAuth(app)
 export const provider = new GoogleAuthProvider()
 export const storage = getStorage(app);
-// Lưu ý: Region function nên để trong config hoặc hardcode nếu cố định
+
 export const functions = getFunctions(app, "asia-southeast1");
