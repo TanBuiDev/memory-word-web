@@ -56,7 +56,7 @@ const About = () => {
     return (
         <section id="about" className="relative py-24 overflow-hidden">
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-indigo-950 to-purple-950"></div>
+            <div className="absolute inset-0"></div>
 
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Database, Brain, Activity, Map, Settings, TrendingUp, Info, ChevronDown, ChevronUp, Image as ImageIcon, Code, Video } from 'lucide-react';
+import behaviorDataImg from '../../../assets/Detailv2.png';
 
 const SSALSTMDiagram = () => {
     const [activeStep, setActiveStep] = useState<string>("");
@@ -18,7 +19,7 @@ const SSALSTMDiagram = () => {
             analyticsData: [0, 25, 10, 10, 20, 10, 15, 56, 25],
             stats: ["2,500+ data points", "Real-time tracking", "Multi-dimensional analysis"],
             media: {
-                image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800",
+                image: behaviorDataImg,
                 code: `// Sample data collection code
 const collectLearningData = (userId, wordId, response) => {
     return {
@@ -31,7 +32,8 @@ const collectLearningData = (userId, wordId, response) => {
         sessionId: getCurrentSession()
     };
 };`,
-                video: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+                // 3. CẬP NHẬT VIDEO LIÊN QUAN (Big Data in Education)
+                video: "https://www.youtube.com/embed/Sxvh4pNzfCc"
             }
         },
         {
@@ -44,7 +46,7 @@ const collectLearningData = (userId, wordId, response) => {
             optimizationData: [0, 2, 3, 2, 4, 6, 5, 9, 10],
             stats: ["9 hyperparameters", "Global optimization", "Fast convergence"],
             media: {
-                image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=800",
+                image: behaviorDataImg,
                 code: `# SSA Algorithm Implementation
 def sparrow_search_algorithm(population, iterations):
     best_solution = None

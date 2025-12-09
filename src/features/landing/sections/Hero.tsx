@@ -47,7 +47,7 @@ const HeroSection = () => {
 
     return (
         <section id="home" className="relative pt-24 pb-12 md:pt-32 md:pb-24 overflow-hidden">
-            <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-indigo-950 to-purple-950"></div>
+            <div className="absolute inset-0"></div>
 
             {/* Animated Background Elements */}
             <div className="absolute inset-0 overflow-hidden">

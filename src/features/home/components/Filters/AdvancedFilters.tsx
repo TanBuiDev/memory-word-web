@@ -111,123 +111,95 @@ export default function AdvancedFilters({
     }
 
     return (
-        <div className="bg-white p-3 rounded-lg border border-gray-200 mb-4">
-            <div className="flex flex-wrap gap-3 items-end">
-                {/* Trạng thái */}
-                <div className="flex items-center gap-2 min-w-[150px]">
-                    <label className="text-sm text-gray-600">Trạng thái</label>
-                    <select
-                        value={local.filterMemorized ?? "all"}
-                        onChange={(e) =>
-                            handleField(
-                                "filterMemorized",
-                                e.target.value as FilterShape["filterMemorized"]
-                            )
-                        }
-                        className="px-2 py-1 border rounded w-36"
-                    >
-                        <option value="all">Tất cả</option>
-                        <option value="memorized">Đã nhớ</option>
-                        <option value="not_memorized">Chưa nhớ</option>
-                    </select>
-                </div>
+        <div className="space-y-3">
+            {/* Status Filter */}
+            <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Status
+                </label>
+                <select
+                    value={local.filterMemorized ?? "all"}
+                    onChange={(e) =>
+                        handleField(
+                            "filterMemorized",
+                            e.target.value as FilterShape["filterMemorized"]
+                        )
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                >
+                    <option value="all">All Words</option>
+                    <option value="memorized">✓ Memorized</option>
+                    <option value="not_memorized">○ Not Memorized</option>
+                </select>
+            </div>
 
-                {/* Ngày từ → đến */}
-                <div className="flex items-center gap-2">
-                    <label className="text-sm text-gray-600">Ngày từ</label>
+            {/* Date Range */}
+            <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Date Range
+                </label>
+                <div className="space-y-2">
                     <input
                         type="date"
                         value={local.filterDateFrom ?? ""}
                         onChange={(e) =>
                             handleField("filterDateFrom", e.target.value || undefined)
                         }
-                        className="px-2 py-1 border rounded w-36"
+                        placeholder="From"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                     />
-                    <label className="text-sm text-gray-600">đến</label>
                     <input
                         type="date"
                         value={local.filterDateTo ?? ""}
                         onChange={(e) =>
                             handleField("filterDateTo", e.target.value || undefined)
                         }
-                        className="px-2 py-1 border rounded w-36"
+                        placeholder="To"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                     />
                 </div>
-
-                {/* Difficulty */}
-                <div className="flex items-center gap-2 min-w-40">
-                    <label className="text-sm text-gray-600">Difficulty</label>
-                    <select
-                        value={local.filterDifficulty ?? ""}
-                        onChange={(e) =>
-                            handleField("filterDifficulty", e.target.value || undefined)
-                        }
-                        className="px-2 py-1 border rounded w-40"
-                    >
-                        <option value="">-- Any --</option>
-                        {difficulties.map((d) => (
-                            <option key={d} value={d}>
-                                {d}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Tags */}
-                {/* <div className="flex-1 min-w-56">
-                    <label className="text-sm text-gray-600">
-                        Tags (comma separated)
-                    </label>
-                    <input
-                        value={local.filterTags ?? ""}
-                        onChange={(e) => handleField("filterTags", e.target.value)}
-                        placeholder="e.g. phrasal,business"
-                        className="w-full px-3 py-1 border rounded"
-                    />
-                </div> */}
-
-                {/* Lưu preset */}
-                {/* <div className="flex items-center gap-2 ml-auto">
-                    <input
-                        className="px-2 py-1 border rounded w-48"
-                        placeholder="Tên preset"
-                        value={presetName}
-                        onChange={(e) => setPresetName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && savePreset(presetName)}
-                    />
-                    <button
-                        className="px-3 py-1 bg-fuchsia-600 text-white rounded"
-                        onClick={() => savePreset(presetName)}
-                    >
-                        Lưu filter
-                    </button>
-                </div> */}
             </div>
 
-            {/* Saved presets */}
-            {/* {savedPresets.length > 0 && (
-                <div className="mt-3 flex gap-2 flex-wrap">
-                    {savedPresets.map((p) => (
-                        <div
-                            key={p.name}
-                            className="bg-gray-100 px-3 py-1 rounded flex items-center gap-2"
-                        >
-                            <button
-                                onClick={() => applyPreset(p)}
-                                className="text-sm text-gray-700 hover:underline"
-                            >
-                                {p.name}
-                            </button>
-                            <button
-                                onClick={() => deletePreset(p.name)}
-                                className="text-xs text-red-500 hover:text-red-700"
-                            >
-                                ✖
-                            </button>
-                        </div>
+            {/* Difficulty */}
+            <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                    Difficulty Level
+                </label>
+                <select
+                    value={local.filterDifficulty ?? ""}
+                    onChange={(e) =>
+                        handleField("filterDifficulty", e.target.value || undefined)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                >
+                    <option value="">All Levels</option>
+                    {difficulties.map((d) => (
+                        <option key={d} value={d}>
+                            {d}
+                        </option>
                     ))}
-                </div>
-            )} */}
+                </select>
+            </div>
+
+            {/* Reset Button */}
+            {(local.filterMemorized !== "all" || local.filterDateFrom || local.filterDateTo || local.filterDifficulty) && (
+                <button
+                    onClick={() => {
+                        const reset = {
+                            filterMemorized: "all" as const,
+                            filterDateFrom: undefined,
+                            filterDateTo: undefined,
+                            filterDifficulty: undefined,
+                            filterTags: undefined
+                        }
+                        setLocal(reset)
+                        if (onChange) onChange(reset)
+                    }}
+                    className="w-full px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+                >
+                    Reset Filters
+                </button>
+            )}
         </div>
     )
 }

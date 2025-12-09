@@ -114,7 +114,7 @@ export default function WordInput({ value, onChange, onSelect, onEnter }: Props)
             {suggestions.length > 0 && (
                 <ul
                     ref={listRef} // <-- Gắn ref cho <ul>
-                    className="absolute left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-md mt-1 z-20 max-h-72 overflow-y-auto"
+                    className="absolute left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-md mt-1 z-50 max-h-72 overflow-y-auto"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {suggestions.map((s, i) => (

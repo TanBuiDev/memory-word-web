@@ -5,6 +5,13 @@ import type { Word } from "../../../types/word"
 import type { User } from "firebase/auth"
 import Dropdown from "../../../components/ui/Dropdown"
 import StreakDisplay from "./StreakDisplay"
+import {
+    Brain, Zap, Target,
+    Settings, LogOut, Plus,
+    Trash2, Edit, ChevronRight, BarChart3,
+    AlertCircle, HelpCircle, ListFilter
+} from "lucide-react"
+import Background from "../../../components/layout/Background"
 
 interface SidebarProps {
     user: User | null
@@ -48,14 +55,25 @@ export default function Sidebar({
         labelText = "Mặc định"
     }
 
+    // Tính khả năng nhớ trung bình
+    const memoryValues = (words ?? []).map(w => typeof w.p_recall === 'number' ? w.p_recall : NaN).filter(v => !Number.isNaN(v))
+    const averageMemory = memoryValues.length > 0
+        ? Math.round((memoryValues.reduce((a, b) => a + b, 0) / memoryValues.length) * 100)
+        : 0
+
+    // Tính từ cần ôn tập
+    const needsReviewWords = (words ?? []).filter((w) => w.needsReview)
+    const reviewCount = needsReviewWords.length
+
     if (!user) return null
 
     return (
         <>
+            <Background></Background>
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
                     onClick={onClose}
                 />
             )}
@@ -64,18 +82,26 @@ export default function Sidebar({
             <aside
                 className={`
                     fixed lg:sticky top-0 left-0 h-screen lg:h-auto
-                    w-80 bg-white dark:bg-gray-800 shadow-2xl lg:shadow-lg
+                    w-80 bg-gradient-to-b from-gray-900 via-indigo-950 to-purple-950
+                    border-r border-white/10 shadow-2xl lg:shadow-2xl
                     transform transition-transform duration-300 ease-in-out z-50
                     ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-                    flex flex-col
+                    flex flex-col backdrop-blur-xl
                 `}
             >
                 {/* Close button for mobile */}
-                <div className="flex items-center justify-between p-4 border-b dark:border-gray-700 lg:hidden">
-                    <h2 className="text-lg font-bold text-fuchsia-600 dark:text-fuchsia-400">Menu</h2>
+                <div className="flex items-center justify-between p-4 border-b border-white/10 lg:hidden">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600">
+                            <Brain className="h-6 w-6 text-white" />
+                        </div>
+                        <h2 className="text-lg font-bold bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">
+                            Learning Hub
+                        </h2>
+                    </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition text-gray-700 dark:text-gray-300"
+                        className="p-2 hover:bg-white/10 rounded-lg transition text-white"
                         aria-label="Close menu"
                     >
                         <span className="text-2xl">×</span>
@@ -83,191 +109,258 @@ export default function Sidebar({
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {/* Streak Display + Remembering Ability */}
-                    <div className="flex flex-col items-center bg-linear-to-br from-orange-50 to-red-50 rounded-xl p-2 border border-orange-100">
+                <div className="flex-1 overflow-y-auto p-2 space-y-6">
+                    {/* Streak & Memory Stats */}
+                    <div className="bg-gradient-to-br from-gray-900/80 to-indigo-900/80 rounded-2xl border border-white/10 p-5 backdrop-blur-sm">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600/20 to-purple-600/20">
+                                    <Zap className="h-5 w-5 text-yellow-400" />
+                                </div>
+                                <h3 className="font-semibold text-white">Tiến độ học tập</h3>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-gray-400" />
+                        </div>
+
                         <StreakDisplay userId={user.uid} />
-                        <div className="mt-2 text-center">
-                            <div className="text-xs text-gray-500 uppercase font-bold">Khả năng nhớ (tổng quan)</div>
-                            <div className="text-lg font-bold text-fuchsia-600">
-                                {(() => {
-                                    const vals = (words ?? []).map(w => typeof w.p_recall === 'number' ? w.p_recall : NaN).filter(v => !Number.isNaN(v))
-                                    if (vals.length === 0) return "—"
-                                    const avg = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100)
-                                    return `${avg}%`
-                                })()}
+
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-600/20 to-cyan-600/20">
+                                        <Brain className="h-4 w-4 text-blue-400" />
+                                    </div>
+                                    <span className="text-sm text-gray-300">Khả năng nhớ</span>
+                                </div>
+                                <div className={`text-lg font-bold ${averageMemory >= 70 ? 'text-emerald-400' : averageMemory >= 40 ? 'text-yellow-400' : 'text-red-400'}`}>
+                                    {averageMemory || 0}%
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Navigation Section */}
-                    <div className="space-y-2">
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">
-                            Học tập
-                        </h3>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2 px-2">
+                            <div className="w-1 h-4 bg-gradient-to-b from-indigo-400 to-purple-400 rounded-full"></div>
+                            <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                                Học tập & Ôn tập
+                            </h3>
+                        </div>
 
-                        <Link to="/quiz" onClick={onClose}>
-                            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-cyan-50 dark:hover:bg-cyan-900/20 transition group cursor-pointer">
-                                <div className="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                    🎯
+                        <Link to="/quiz" onClick={onClose} className="block">
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-indigo-500/50 transition-all duration-300 cursor-pointer">
+                                <div className="p-3 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 group-hover:scale-110 transition-transform">
+                                    <Target className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200">Quiz</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Ôn tập cơ bản</div>
+                                    <div className="font-semibold text-white">Quiz Ôn tập</div>
+                                    <div className="text-xs text-gray-400">Kiểm tra kiến thức cơ bản</div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
                             </div>
                         </Link>
 
-                        <Link to="/smart-quiz" onClick={onClose}>
-                            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 transition group cursor-pointer">
-                                <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                    🧠
+                        <Link to="/smart-quiz" onClick={onClose} className="block">
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/50 transition-all duration-300 cursor-pointer">
+                                <div className="p-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 group-hover:scale-110 transition-transform">
+                                    <Brain className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200">Smart Quiz</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">AI tối ưu lộ trình</div>
+                                    <div className="font-semibold text-white">Smart Quiz AI</div>
+                                    <div className="text-xs text-gray-400">Lộ trình thông minh với AI</div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
                             </div>
                         </Link>
 
-                        {(() => {
-                            const needsReview = (words ?? []).filter((w) => w.needsReview);
-                            return needsReview.length > 0 ? (
-                                <Link to="/smart-quiz" onClick={onClose}>
-                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border-l-4 border-red-500 transition group cursor-pointer">
-                                        <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                            🔴
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-semibold text-red-700 dark:text-red-400">Ôn tập lại</div>
-                                            <div className="text-xs text-red-600 dark:text-red-300">{needsReview.length} từ cần ôn</div>
-                                        </div>
+                        {reviewCount > 0 && (
+                            <Link to="/smart-quiz" onClick={onClose} className="block">
+                                <div className="group flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-red-900/40 to-pink-900/40 border border-red-500/30 hover:border-red-500/50 transition-all duration-300 cursor-pointer relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/5 to-red-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                                    <div className="relative p-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 group-hover:scale-110 transition-transform">
+                                        <AlertCircle className="h-5 w-5 text-white" />
                                     </div>
-                                </Link>
-                            ) : null;
-                        })()}
+                                    <div className="relative flex-1">
+                                        <div className="font-semibold text-white">Cần ôn tập gấp</div>
+                                        <div className="text-xs text-red-300">{reviewCount} từ sắp quên</div>
+                                    </div>
+                                    <div className="relative px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold">
+                                        {reviewCount}
+                                    </div>
+                                </div>
+                            </Link>
+                        )}
 
-                        <Link to="/analytics" onClick={onClose}>
-                            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group cursor-pointer">
-                                <div className="w-10 h-10 bg-linear-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                    📊
+                        <Link to="/analytics" onClick={onClose} className="block">
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 transition-all duration-300 cursor-pointer">
+                                <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:scale-110 transition-transform">
+                                    <BarChart3 className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200">Thống kê</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Theo dõi tiến độ</div>
+                                    <div className="font-semibold text-white">Thống kê học tập</div>
+                                    <div className="text-xs text-gray-400">Phân tích chi tiết tiến độ</div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
                             </div>
                         </Link>
+                    </div>
 
+                    {/* Lists Section */}
+                    <div className="space-y-3 pt-4 border-t border-white/10">
+                        <div className="flex items-center gap-2 px-2">
+                            <div className="w-1 h-4 bg-gradient-to-b from-blue-400 to-cyan-400 rounded-full"></div>
+                            <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                                Danh sách học
+                            </h3>
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="bg-gradient-to-r from-gray-900/50 to-indigo-900/30 rounded-xl p-3 border border-white/10">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                        <ListFilter className="h-4 w-4 text-blue-400" />
+                                        <span className="text-sm font-medium text-white">Chọn danh mục</span>
+                                    </div>
+                                </div>
+
+                                <Dropdown
+                                    label={labelText}
+                                    width="w-full"
+                                    items={[
+                                        { label: "Mặc định", value: "__default__" },
+                                        ...lists.map(list => ({
+                                            label: list.name,
+                                            value: list.id
+                                        })),
+                                        { label: "➕ Thêm danh mục", value: "__add" }
+                                    ]}
+                                    onSelect={(value) => {
+                                        if (value === "__add") {
+                                            setShowAddModal(true)
+                                            return
+                                        }
+                                        if (setDefaultListId) setDefaultListId(value)
+                                    }}
+                                    renderItem={(item) => {
+                                        if (item.value === "__add") return (
+                                            <div className="flex items-center gap-2">
+                                                <Plus className="h-4 w-4" />
+                                                Thêm danh mục
+                                            </div>
+                                        )
+                                        if (item.value === "__default__") return "Mặc định"
+
+                                        const list = lists.find(l => l.id === item.value)
+                                        if (!list) return item.label
+
+                                        return (
+                                            <div className="flex justify-between items-center gap-2 w-full group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                                                    <span className="truncate max-w-[120px] text-white" title={list.name}>
+                                                        {list.name}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        className="p-1 hover:bg-white/10 rounded"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            const newName = prompt("Đổi tên danh mục:", list.name)
+                                                            if (newName && onRenameList) onRenameList(list.id, newName)
+                                                        }}
+                                                        title="Chỉnh sửa"
+                                                    >
+                                                        <Edit className="h-3 w-3 text-gray-400 hover:text-blue-400" />
+                                                    </button>
+
+                                                    <button
+                                                        className="p-1 hover:bg-white/10 rounded"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setConfirmDelete({ id: list.id, name: list.name })
+                                                        }}
+                                                        title="Xóa"
+                                                    >
+                                                        <Trash2 className="h-3 w-3 text-gray-400 hover:text-red-400" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )
+                                    }}
+                                />
+                            </div>
+
+                            {lists.length > 0 && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {lists.slice(0, 4).map(list => (
+                                        <button
+                                            key={list.id}
+                                            onClick={() => setDefaultListId?.(list.id)}
+                                            className={`p-2 rounded-lg text-sm transition-all ${defaultListId === list.id
+                                                ? 'bg-gradient-to-r from-indigo-600/30 to-purple-600/30 border border-indigo-500/50 text-white'
+                                                : 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300'
+                                                }`}
+                                        >
+                                            <div className="truncate text-xs">{list.name}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* User & Tools Section */}
+                    <div className="space-y-3 pt-4 border-t border-white/10 mt-auto">
                         {onShowQuickStart && (
                             <button
                                 onClick={() => {
                                     onShowQuickStart()
                                     onClose?.()
                                 }}
-                                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition group"
+                                className="group w-full flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-emerald-900/30 to-teal-900/30 hover:from-emerald-900/40 hover:to-teal-900/40 border border-emerald-500/30 hover:border-emerald-500/50 transition-all"
                             >
-                                <div className="w-10 h-10 bg-linear-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                    ❓
+                                <div className="p-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:scale-110 transition-transform">
+                                    <HelpCircle className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1 text-left">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200">Hướng dẫn</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Xem hướng dẫn sử dụng</div>
+                                    <div className="font-semibold text-white">Hướng dẫn sử dụng</div>
+                                    <div className="text-xs text-gray-400">Xem hướng dẫn chi tiết</div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
                             </button>
                         )}
 
-                        <Link to="/settings" onClick={onClose}>
-                            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition group cursor-pointer">
-                                <div className="w-10 h-10 bg-linear-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center text-white text-xl group-hover:scale-110 transition">
-                                    ⚙️
+                        <Link to="/settings" onClick={onClose} className="block">
+                            <div className="group flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 cursor-pointer">
+                                <div className="p-2 rounded-lg bg-gradient-to-r from-gray-600 to-gray-700 group-hover:scale-110 transition-transform">
+                                    <Settings className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-200">Cài đặt</div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400">Tùy chỉnh ứng dụng</div>
+                                    <div className="font-semibold text-white">Cài đặt</div>
+                                    <div className="text-xs text-gray-400">Tùy chỉnh ứng dụng</div>
                                 </div>
+                                <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-white transition-colors" />
                             </div>
                         </Link>
                     </div>
 
-                    {/* Lists Section */}
-                    <div className="space-y-2 pt-4 border-t dark:border-gray-700">
-                        <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">
-                            Danh mục
-                        </h3>
-
-                        <div className="px-2">
-                            <Dropdown
-                                label={labelText}
-                                width="w-full"
-                                items={[
-                                    { label: "Mặc định", value: "__default__" },
-                                    ...lists.map(list => ({
-                                        label: list.name,
-                                        value: list.id
-                                    })),
-                                    { label: "➕ Thêm danh mục", value: "__add" }
-                                ]}
-                                onSelect={(value) => {
-                                    if (value === "__add") {
-                                        setShowAddModal(true)
-                                        return
-                                    }
-                                    if (setDefaultListId) setDefaultListId(value)
-                                }}
-                                renderItem={(item) => {
-                                    if (item.value === "__add") return item.label
-                                    if (item.value === "__default__") return "Mặc định"
-
-                                    const list = lists.find(l => l.id === item.value)
-                                    if (!list) return item.label
-
-                                    return (
-                                        <div className="flex justify-between items-center gap-2 w-full">
-                                            <span className="truncate max-w-[120px]" title={list.name}>
-                                                {list.name}
-                                            </span>
-
-                                            <div className="flex gap-2 text-sm">
-                                                <button
-                                                    className="text-cyan-600 hover:text-cyan-800"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        const newName = prompt("Đổi tên danh mục:", list.name)
-                                                        if (newName && onRenameList) onRenameList(list.id, newName)
-                                                    }}
-                                                >
-                                                    ✏️
-                                                </button>
-
-                                                <button
-                                                    className="text-red-600 hover:text-red-800"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setConfirmDelete({ id: list.id, name: list.name })
-                                                    }}
-                                                >
-                                                    ➖
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )
-                                }}
-                            />
-                        </div>
-                    </div>
-
-                    {/* User Section */}
-                    <div className="pt-4 border-t dark:border-gray-700 mt-auto">
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
-                            <div className="w-10 h-10 bg-fuchsia-600 rounded-full flex items-center justify-center text-white font-bold">
-                                {user.displayName?.[0]?.toUpperCase() || "U"}
+                    {/* User Profile */}
+                    <div className="pt-4 border-t border-white/10">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-gray-900/50 to-indigo-900/30 border border-white/10">
+                            <div className="relative">
+                                <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                    {user.displayName?.[0]?.toUpperCase() || "U"}
+                                </div>
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-2 border-gray-900"></div>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-gray-800 dark:text-gray-200 truncate">
-                                    {user.displayName || "User"}
+                                <div className="font-semibold text-white truncate">
+                                    {user.displayName || "Người học"}
                                 </div>
-                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                <div className="text-xs text-gray-400 truncate">
                                     {user.email}
                                 </div>
                             </div>
@@ -275,9 +368,9 @@ export default function Sidebar({
 
                         <button
                             onClick={onSignOut}
-                            className="w-full mt-2 flex items-center justify-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 font-semibold transition"
+                            className="w-full mt-3 flex items-center justify-center gap-3 p-3 rounded-xl bg-gradient-to-r from-red-900/40 to-pink-900/40 hover:from-red-900/50 hover:to-pink-900/50 border border-red-500/30 hover:border-red-500/50 text-red-300 hover:text-red-200 font-semibold transition-all duration-300 group"
                         >
-                            <span>🚪</span>
+                            <LogOut className="h-5 w-5 group-hover:rotate-12 transition-transform" />
                             <span>Đăng xuất</span>
                         </button>
                     </div>
@@ -286,14 +379,19 @@ export default function Sidebar({
 
             {/* Modals */}
             {showAddModal && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-80 text-center animate-scale-in">
-                        <h3 className="text-lg font-bold text-gray-800">
-                            ➕ Thêm danh mục mới
-                        </h3>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+                    <div className="bg-gradient-to-br from-gray-900 to-indigo-950 rounded-2xl border border-white/10 shadow-2xl p-6 w-80 animate-scale-in">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600">
+                                <Plus className="h-5 w-5 text-white" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white">
+                                Thêm danh mục mới
+                            </h3>
+                        </div>
 
                         <input
-                            className="w-full mt-4 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-fuchsia-400"
+                            className="w-full mt-2 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                             placeholder="Nhập tên danh mục..."
                             value={newListName}
                             onChange={(e) => setNewListName(e.target.value)}
@@ -306,9 +404,9 @@ export default function Sidebar({
                             }}
                         />
 
-                        <div className="flex justify-center gap-3 mt-6">
+                        <div className="flex justify-end gap-3 mt-6">
                             <button
-                                className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+                                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all"
                                 onClick={() => {
                                     setShowAddModal(false)
                                     setNewListName("")
@@ -318,7 +416,7 @@ export default function Sidebar({
                             </button>
 
                             <button
-                                className="px-4 py-2 bg-fuchsia-600 text-white rounded-full hover:bg-fuchsia-700 transition shadow disabled:opacity-50"
+                                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={!newListName.trim()}
                                 onClick={() => {
                                     if (onAddList) onAddList(newListName.trim())
@@ -334,26 +432,33 @@ export default function Sidebar({
             )}
 
             {confirmDelete && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 animate-fade-in">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 w-80 text-center animate-scale-in">
-                        <h3 className="text-lg font-bold text-gray-800">
-                            Xóa danh mục?
-                        </h3>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+                    <div className="bg-gradient-to-br from-gray-900 to-indigo-950 rounded-2xl border border-white/10 shadow-2xl p-6 w-80 animate-scale-in">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-red-600 to-pink-600">
+                                <AlertCircle className="h-5 w-5 text-white" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white">
+                                Xác nhận xóa
+                            </h3>
+                        </div>
 
-                        <p className="text-gray-600 mt-2">
-                            Bạn có chắc muốn xóa <b className="text-fuchsia-600">{confirmDelete.name}</b>?
+                        <p className="text-gray-300">
+                            Bạn có chắc muốn xóa danh mục <b className="text-white">{confirmDelete.name}</b>?
+                            <br />
+                            <span className="text-sm text-red-400">Hành động này không thể hoàn tác</span>
                         </p>
 
-                        <div className="flex justify-center gap-3 mt-6">
+                        <div className="flex justify-end gap-3 mt-6">
                             <button
-                                className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+                                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-all"
                                 onClick={() => setConfirmDelete(null)}
                             >
                                 Hủy
                             </button>
 
                             <button
-                                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow"
+                                className="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
                                 onClick={() => {
                                     if (onDeleteList) onDeleteList(confirmDelete.id)
                                     setConfirmDelete(null)
@@ -368,4 +473,3 @@ export default function Sidebar({
         </>
     )
 }
-

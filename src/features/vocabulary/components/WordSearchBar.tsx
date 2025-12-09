@@ -53,7 +53,7 @@ export default function WordSearchBar({
             </div>
 
             {showSuggestions && (
-                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl z-30 max-h-72 overflow-y-auto">
+                <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl z-50 max-h-72 overflow-y-auto">
                     {suggestions.map((word) => (
                         <button
                             key={word.id}

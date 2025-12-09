@@ -9,10 +9,11 @@ import { updateStreak, recordQuizCompletion } from "../utils/streakService"
 import Flashcard from "../features/learning/components/quiz/Flashcard"
 import MultipleChoice from "../features/learning/components/quiz/MultipleChoice"
 import FillInBlank from "../features/learning/components/quiz/FillInBlank"
-import Header from "../features/learning/components/Header"
+import Header from "../components/layout/Header"
 import StreakCelebration from "../features/learning/components/StreakCelebration"
 import WelcomeModal from "../features/learning/components/WelcomeModal"
 import { Link } from "react-router-dom"
+import Background from "../components/layout/Background"
 
 interface QuizResult {
     word: WordWithRecall
@@ -317,7 +318,7 @@ export default function SmartQuiz({ user }: { user: User }) {
         if (showDetail) {
             return (
                 <div className="min-h-screen bg-gray-50 flex flex-col">
-                    <Header user={user} simple />
+                    <Header />
                     <div className="max-w-2xl mx-auto w-full p-4 pb-20">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold text-gray-800">Chi tiết kết quả</h2>
@@ -366,8 +367,9 @@ export default function SmartQuiz({ user }: { user: User }) {
         const isEarlyFinish = answeredCount < quizQueue.length
 
         return (
-            <div className="min-h-screen bg-linear-to-br from-fuchsia-50 via-rose-50 to-violet-50 flex flex-col">
-                <Header user={user} simple />
+            <div className="min-h-screen mt-25 flex flex-col">
+                <Background></Background>
+                <Header />
                 <div className="flex-1 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center space-y-6 animate-scale-in">
                         <div className="text-8xl mb-4">{icon}</div>
@@ -388,7 +390,7 @@ export default function SmartQuiz({ user }: { user: User }) {
                         <button onClick={() => setShowDetail(true)} className="text-fuchsia-600 font-semibold hover:underline py-2">📄 Xem chi tiết đáp án</button>
                         <div className="flex flex-col gap-3 pt-2">
                             <button onClick={() => refreshAndStartQuiz()} className="w-full py-3 bg-fuchsia-600 hover:bg-fuchsia-700 text-white rounded-xl font-bold transition shadow-lg transform hover:scale-105">🔄 Học tiếp 10 từ khác</button>
-                            <Link to="/"><button className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-semibold transition">🏠 Về trang chủ</button></Link>
+                            <Link to="/dashboard"><button className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-semibold transition">🏠 Về trang chủ</button></Link>
                         </div>
                     </div>
                 </div>
@@ -400,9 +402,10 @@ export default function SmartQuiz({ user }: { user: User }) {
     if (!currentWord) return null;
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-fuchsia-50 via-rose-50 to-violet-50">
-            <Header user={user} simple />
-            <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded-3xl shadow-xl transition-all duration-300">
+        <div className="min-h-screen">
+            <Background></Background>
+            <Header />
+            <div className="max-w-xl mx-auto mt-25 p-6 bg-white rounded-3xl shadow-xl transition-all duration-300">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
                     <div>
                         <h1 className="text-2xl font-bold text-fuchsia-700">🧠 Smart Learning</h1>
