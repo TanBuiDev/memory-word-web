@@ -11,7 +11,6 @@ import {
     Trash2, Edit, ChevronRight, BarChart3,
     AlertCircle, HelpCircle, ListFilter
 } from "lucide-react"
-import Background from "../../../components/layout/Background"
 
 interface SidebarProps {
     user: User | null
@@ -69,7 +68,6 @@ export default function Sidebar({
 
     return (
         <>
-            <Background></Background>
             {/* Mobile Overlay */}
             {isOpen && (
                 <div
