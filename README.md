@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# MemoWord - AI-Powered Vocabulary Learning Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MemoWord is an intelligent web application designed to help users efficiently learn and retain new vocabulary. It leverages a custom-trained AI model to implement a Spaced Repetition System (SRS), personalizing the learning experience by predicting when a user is most likely to forget a word and quizzing them on it accordingly.
 
-Currently, two official plugins are available:
+## Core Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **AI-Powered Smart Quiz**: Utilizes a deep learning model (LSTM) to predict the probability of word recall, creating optimized quizzes that focus on words you're about to forget.
+- **Vocabulary Dashboard**: A central hub to add, manage, and review your vocabulary list.
+- **Multiple Quiz Modes**: Engage with your vocabulary through various formats, including flashcards, multiple-choice questions, and fill-in-the-blank exercises.
+- **Learning Analytics**: Track your progress, view your learning streaks, and gain insights into your study habits.
+- **User Authentication**: Securely manage your personal vocabulary lists and track your progress across sessions.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- **Frontend**: React, TypeScript, Vite
+- **Backend**: Python, Firebase Cloud Functions
+- **Database**: Google Firestore
+- **AI Model**: TensorFlow (Keras)
+- **Deployment**: Firebase Hosting
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The project is a monorepo containing two main parts: the frontend application and the backend serverless functions.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+/
+├── functions/      # Backend: Python on Firebase Cloud Functions
+│   ├── main.py     # --- Backend Entry Point: Defines cloud functions (API endpoints, triggers)
+│   ├── model.keras # Pre-trained TensorFlow model for recall prediction
+│   └── ...
+│
+├── src/            # Frontend: React + TypeScript SPA
+│   ├── main.tsx    # --- Frontend Entry Point
+│   ├── App.tsx     # Main application component with routing
+│   ├── pages/      # Top-level page components (Dashboard, Quiz, etc.)
+│   ├── features/   # Feature-sliced modules (Auth, Learning, etc.)
+│   ├── components/ # Reusable UI components
+│   └── ...
+│
+├── firebase.json   # Firebase configuration for hosting and functions
+├── package.json    # Frontend dependencies and scripts
+└── ...
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- **Frontend Entry Point**: `src/main.tsx` initializes the React application and renders it into the DOM.
+- **Backend Entry Point**: `functions/main.py` defines the callable cloud functions that serve the AI predictions and other backend logic.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Installation and Running
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [Python](https://www.python.org/) (v3.9 or later)
+- [Firebase CLI](https://firebase.google.com/docs/cli)
+
+### 1. Frontend Setup
+
+First, set up the React client.
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd memoryword
+
+# 2. Install frontend dependencies
+npm install
+
+# 3. Configure Firebase
+#    - Copy the contents of .env.example into a new .env file
+#    - Fill in the .env file with your Firebase project's configuration.
+#      You can get this from your Firebase project settings.
+cp .env.example .env
+
+# 4. Run the development server
+npm run dev
+```
+
+The application should now be running on `http://localhost:5173`.
+
+### 2. Backend Setup
+
+Next, set up the Firebase Functions backend.
+
+```bash
+# 1. Navigate to the functions directory
+cd functions
+
+# 2. Create a virtual environment and activate it
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+
+# 4. Set up Google Application Credentials
+#    Follow the guide to authenticate the Firebase Admin SDK:
+#    https://cloud.google.com/docs/authentication/provide-credentials-adc
+```
+
+To test the functions locally, you can use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite).
+
+## Deployment
+
+To deploy the application to Firebase:
+
+```bash
+# 1. Build the frontend for production
+npm run build
+
+# 2. Deploy both the frontend (Hosting) and backend (Functions)
+firebase deploy
 ```

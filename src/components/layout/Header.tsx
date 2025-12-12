@@ -24,26 +24,6 @@ const Header = () => {
         { name: 'Contact', href: 'contact' },
     ];
 
-    // Hàm xử lý cuộn (giữ nguyên)
-    const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-        e.preventDefault();
-        if (!isLandingPage) {
-            navigate('/');
-            return;
-        }
-        const element = document.getElementById(id);
-        if (element) {
-            const header = document.querySelector('header');
-            const headerHeight = header ? header.offsetHeight : 80;
-            const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
-            const offsetPosition = elementTop - headerHeight - 20;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
-        setIsMenuOpen(false);
-    };
-
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
     // 2. Hàm xử lý Đăng xuất
     const handleSignOut = async () => {
         try {
@@ -169,7 +149,6 @@ const Header = () => {
                                 <a
                                     key={item.name}
                                     href={`#${item.href}`}
-                                    onClick={(e) => handleSmoothScroll(e, item.href)}
                                     className="relative px-4 py-2 rounded-lg text-gray-200 hover:text-white transition-all duration-300 font-medium cursor-pointer group"
                                 >
                                     <span className="relative z-10">{item.name}</span>
@@ -223,7 +202,7 @@ const Header = () => {
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden flex items-center">
-                        <button onClick={toggleMenu} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors focus:outline-none group relative">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors focus:outline-none group relative">
                             <div className="absolute inset-0 bg-linear-to-r from-purple-500/0 to-blue-500/0 rounded-lg group-hover:from-purple-500/20 group-hover:to-blue-500/20 transition-all duration-300"></div>
                             {isMenuOpen ? <X className="h-6 w-6 text-gray-200 relative z-10" /> : <Menu className="h-6 w-6 text-gray-200 relative z-10" />}
                         </button>
@@ -242,7 +221,7 @@ const Header = () => {
                             <a
                                 key={item.name}
                                 href={`#${item.href}`}
-                                onClick={(e) => handleSmoothScroll(e, item.href)}
+                                onClick={() => setIsMenuOpen(false)}
                                 className="block px-4 py-3 rounded-lg text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium cursor-pointer relative group"
                             >
                                 <span className="relative z-10">{item.name}</span>

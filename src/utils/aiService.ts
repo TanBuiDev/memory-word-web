@@ -146,8 +146,6 @@ function getFallbackRecall(word: Word): number {
  */
 export const warmUpAIModel = async (wordId?: string): Promise<void> => {
     try {
-        // Use a dummy wordId if none provided - the function will still load the model
-        // even if the word doesn't exist (it will return p_recall: 0.0 for new words)
         const dummyWordId = wordId || "__warmup__"
         
         // Fire and forget - don't await, don't log errors to console
@@ -155,7 +153,7 @@ export const warmUpAIModel = async (wordId?: string): Promise<void> => {
             // Silently ignore errors - this is just a warm-up call
         })
         
-        console.log("🔥 AI model warm-up initiated (background)")
+        console.log("AI model warm-up initiated (background)")
     } catch {
         // Silently ignore - warm-up failures shouldn't affect the app
     }

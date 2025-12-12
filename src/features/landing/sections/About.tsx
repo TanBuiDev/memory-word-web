@@ -54,7 +54,7 @@ const About = () => {
     };
 
     return (
-        <section id="about" className="relative py-24 overflow-hidden">
+        <section id="about" className="relative p-4 overflow-hidden">
             {/* Background Gradient */}
             <div className="absolute inset-0"></div>
 

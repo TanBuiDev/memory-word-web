@@ -172,6 +172,33 @@ const HeroSection = () => {
                             <div className="text-gray-300 font-semibold">Giáo viên</div>
                         </div>
                     </div>
+
+                    {/* Data Flow Animation between sections */}
+                    <div className="absolute bottom-0 left-0 right-0 h-20">
+                        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
+                                    <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                                </linearGradient>
+                            </defs>
+                            <path
+                                d="M0,0 Q300,40 600,20 Q900,0 1200,30 Q1500,60 1800,20"
+                                stroke="url(#flow-gradient)"
+                                strokeWidth="2"
+                                fill="none"
+                                strokeDasharray="5,5"
+                            >
+                                <animate
+                                    attributeName="stroke-dashoffset"
+                                    values="0;10"
+                                    dur="2s"
+                                    repeatCount="indefinite"
+                                />
+                            </path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </section>

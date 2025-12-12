@@ -4,15 +4,14 @@ import HeroSection from '../features/landing/sections/Hero';
 import AboutSection from '../features/landing/sections/About';
 import ContactSection from '../features/landing/sections/Contact';
 import ScrollToTopButton from '../components/ui/ScrollToTopButton';
+import SectionWrapper from '../features/landing/components/SectionWrapper';
 import { useEffect, useState } from 'react';
 import { Sparkles, Cpu, Zap, Brain } from 'lucide-react';
 
 const LandingPage = () => {
     const [isLoaded, setIsLoaded] = useState(false);
 
-    // Hiệu ứng theo dõi chuột cho background particles (đã sửa - chỉ hiển thị particles không cần mousePosition)
     useEffect(() => {
-        // Trigger animation khi page load
         const timer = setTimeout(() => {
             setIsLoaded(true);
         }, 100);
@@ -20,114 +19,13 @@ const LandingPage = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    // Thêm CSS animations
-    useEffect(() => {
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
-            @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
-            }
-            
-            @keyframes pulseGlow {
-                0%, 100% { opacity: 0.3; }
-                50% { opacity: 0.6; }
-            }
-            
-            @keyframes particleFloat {
-                0%, 100% { 
-                    transform: translate(0, 0) scale(1);
-                    opacity: 0.3;
-                }
-                50% { 
-                    transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) scale(1.2);
-                    opacity: 0.6;
-                }
-            }
-            
-            .animate-fade-in-up {
-                animation: fadeInUp 0.8s ease-out forwards;
-            }
-            
-            .animate-float {
-                animation: float 3s ease-in-out infinite;
-            }
-            
-            .animate-pulse-glow {
-                animation: pulseGlow 2s ease-in-out infinite;
-            }
-            
-            .animate-particle {
-                animation: particleFloat 4s ease-in-out infinite;
-            }
-            
-            .animation-delay-200 {
-                animation-delay: 0.2s;
-            }
-            
-            .animation-delay-400 {
-                animation-delay: 0.4s;
-            }
-            
-            .animation-delay-600 {
-                animation-delay: 0.6s;
-            }
-            
-            .animation-delay-800 {
-                animation-delay: 0.8s;
-            }
-        `;
-        document.head.appendChild(style);
 
-        return () => {
-            document.head.removeChild(style);
-        };
-    }, []);
 
-    // Effect để xử lý scroll anchor
-    useEffect(() => {
-        // Xử lý hash trong URL
-        const handleHashChange = () => {
-            const hash = window.location.hash.substring(1);
-            if (hash) {
-                setTimeout(() => {
-                    const element = document.getElementById(hash);
-                    if (element) {
-                        const header = document.querySelector('header');
-                        const headerHeight = header ? header.offsetHeight : 80;
-                        const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
-                        const offsetPosition = elementTop - headerHeight - 20;
 
-                        window.scrollTo({
-                            top: offsetPosition,
-                            behavior: 'smooth'
-                        });
-                    }
-                }, 100);
-            }
-        };
-
-        // Kiểm tra ngay khi load page
-        handleHashChange();
-
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-950 overflow-hidden">
-            {/* Animated Background Particles - Đã sửa không cần mousePosition */}
+            {/* Animated Background Particles*/}
             <div className="fixed inset-0 pointer-events-none z-0">
                 {[...Array(15)].map((_, i) => (
                     <div
@@ -208,58 +106,17 @@ const LandingPage = () => {
 
                 <main className={`flex-grow transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                     {/* Hero Section */}
-                    <section id="home" className="relative overflow-hidden">
+                    <section id="home" className="relative overflow-hidden scroll-auto">
                         <HeroSection />
-
-                        {/* Data Flow Animation between sections */}
-                        <div className="absolute bottom-0 left-0 right-0 h-20">
-                            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
-                                        <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.3" />
-                                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-                                    </linearGradient>
-                                </defs>
-                                <path
-                                    d="M0,0 Q300,40 600,20 Q900,0 1200,30 Q1500,60 1800,20"
-                                    stroke="url(#flow-gradient)"
-                                    strokeWidth="2"
-                                    fill="none"
-                                    strokeDasharray="5,5"
-                                >
-                                    <animate
-                                        attributeName="stroke-dashoffset"
-                                        values="0;10"
-                                        dur="2s"
-                                        repeatCount="indefinite"
-                                    />
-                                </path>
-                            </svg>
-                        </div>
                     </section>
 
-                    {/* About Section - with seamless transition */}
-                    <div className="relative">
-                        {/* Connecting Gradient */}
-                        <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-transparent via-gray-900/50 to-gray-950"></div>
+                    <SectionWrapper id="about" dividerColor="indigo">
+                        <AboutSection />
+                    </SectionWrapper>
 
-                        <section id="about" className="relative pt-32 -mt-32">
-                            <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-indigo-500/30 to-transparent"></div>
-                            <AboutSection />
-                        </section>
-                    </div>
-
-                    {/* Contact Section - with seamless transition */}
-                    <div className="relative">
-                        {/* Connecting Gradient */}
-                        <div className="absolute top-0 left-0 right-0 h-32 bg-linear-to-b from-transparent via-gray-900/50 to-gray-950"></div>
-
-                        <section id="contact" className="relative pt-32 -mt-32">
-                            <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-purple-500/30 to-transparent"></div>
-                            <ContactSection />
-                        </section>
-                    </div>
+                    <SectionWrapper id="contact" dividerColor="purple">
+                        <ContactSection />
+                    </SectionWrapper>
                 </main>
 
                 <Footer />
@@ -278,18 +135,6 @@ const LandingPage = () => {
                             </div>
                         </div>
                         <p className="mt-4 text-lg text-gray-300 font-medium">Đang khởi động AI...</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Performance Stats - Đã sửa không dùng process.env */}
-            {import.meta.env.DEV && (
-                <div className="fixed bottom-4 left-4 z-50">
-                    <div className="px-3 py-2 rounded-lg bg-black/50 backdrop-blur-sm border border-white/10 text-xs text-gray-400">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                            <span>MemoryWord AI Ready</span>
-                        </div>
                     </div>
                 </div>
             )}
