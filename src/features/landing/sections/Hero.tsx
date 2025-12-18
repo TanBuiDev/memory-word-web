@@ -1,11 +1,20 @@
 import { ArrowRight, Brain, Sparkles, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useAuthStore } from '../../../stores/useAuthStore';
 
 const HeroSection = () => {
     const navigate = useNavigate();
+    const { user } = useAuthStore();
 
-    // Thêm CSS animations vào head
+    const handleStartLearning = () => {
+        if (user) {
+            navigate('/dashboard');
+        } else {
+            navigate('/login', { state: { from: '/dashboard' } });
+        }
+    }
+
     useEffect(() => {
         const style = document.createElement('style');
         style.textContent = `
@@ -49,7 +58,7 @@ const HeroSection = () => {
         <section id="home" className="relative pt-24 pb-12 md:pt-32 md:pb-24 overflow-hidden">
             <div className="absolute inset-0"></div>
 
-            {/* Animated Background Elements */}
+            {/* Animated Background*/}
             <div className="absolute inset-0 overflow-hidden">
                 {/* Floating AI Nodes */}
                 <div className="absolute top-1/4 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
@@ -139,7 +148,7 @@ const HeroSection = () => {
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row justify-center gap-4">
                         <button
-                            onClick={() => navigate('/dashboard')}
+                            onClick={handleStartLearning}
                             className="group relative flex items-center justify-center px-8 py-4 border-0 text-lg font-semibold rounded-xl text-white bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 md:py-4 md:text-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-linear-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>

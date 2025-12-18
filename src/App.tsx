@@ -17,9 +17,8 @@ import { useAuthStore } from "./stores/useAuthStore";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeProvider";
 
-// --- CÁC COMPONENT BẢO VỆ ROUTE (Route Guards) ---
-
-// 1. ProtectedRoute: Chỉ cho phép User đã đăng nhập vào
+//Route Guards
+//Chỉ cho phép User đã đăng nhập vào
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuthStore();
 
