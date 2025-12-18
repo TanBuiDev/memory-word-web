@@ -176,20 +176,20 @@ export const warmUpAIModel = async (wordId?: string): Promise<void> => {
  */
 export const updateWordRecall = async (wordId: string): Promise<number | undefined> => {
     try {
-        console.log(`🔄 Updating p_recall for word: ${wordId}`)
+        console.log(`Updating p_recall for word: ${wordId}`)
         
         // Call AI model to recalculate p_recall with latest interaction history
         const result = await predictRecall({ wordId })
         const data = result.data as { p_recall?: number; status?: string; error?: string }
         
         if (data.error) {
-            console.warn(`⚠️ Error updating p_recall for word ${wordId}:`, data.error)
+            console.warn(`Error updating p_recall for word ${wordId}:`, data.error)
             return undefined
         }
         
         const newPRecall = data.p_recall
         if (typeof newPRecall !== 'number') {
-            console.warn(`⚠️ Invalid p_recall value for word ${wordId}:`, newPRecall)
+            console.warn(`Invalid p_recall value for word ${wordId}:`, newPRecall)
             return undefined
         }
         
@@ -198,14 +198,14 @@ export const updateWordRecall = async (wordId: string): Promise<number | undefin
             await updateDoc(doc(db, "words", wordId), {
                 p_recall: newPRecall
             })
-            console.log(`✅ Updated p_recall for word ${wordId}: ${Math.round(newPRecall * 100)}%`)
+            console.log(`Updated p_recall for word ${wordId}: ${Math.round(newPRecall * 100)}%`)
             return newPRecall
         } catch (firestoreError) {
-            console.error(`❌ Failed to update Firestore for word ${wordId}:`, firestoreError)
+            console.error(`Failed to update Firestore for word ${wordId}:`, firestoreError)
             return newPRecall // Return value even if Firestore update fails
         }
     } catch (err) {
-        console.error(`❌ Failed to update p_recall for word ${wordId}:`, err)
+        console.error(`Failed to update p_recall for word ${wordId}:`, err)
         return undefined
     }
 }

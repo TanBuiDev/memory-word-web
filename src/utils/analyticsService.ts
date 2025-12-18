@@ -1,6 +1,140 @@
-import { collection, query, where, getDocs, orderBy, limit } from "firebase/firestore"
+import { collection, query, where, getDocs, orderBy, limit, startAt, endAt } from "firebase/firestore"
 import { db } from "../firebase"
 import type { WordStats } from "../types/userProgress"
+import type { Word } from "../types/word"
+
+export interface RecallHistoryPoint {
+    timestamp: number;
+    pRecall: number;
+    correct: boolean;
+}
+
+export interface WordRecallData {
+    history: RecallHistoryPoint[];
+    currentPRecall: number | null;
+    totalAttempts: number;
+    correctAttempts: number;
+}
+
+
+/**
+ * Get a word's p_recall history from its interaction logs.
+ */
+export async function getWordRecallHistory(userId: string, wordId: string): Promise<RecallHistoryPoint[]> {
+    const logsRef = collection(db, "interaction_log")
+    const q = query(
+        logsRef,
+        where("userId", "==", userId),
+        where("wordId", "==", wordId),
+        orderBy("timestamp", "asc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+        return [];
+    }
+
+    const history: RecallHistoryPoint[] = [];
+    snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        // Accept any quiz interaction with p_recall_after value
+        // This includes quiz_flashcard, quiz_mcq, quiz_fill, and smart_quiz
+        if (typeof data.p_recall_after === 'number') {
+            history.push({
+                timestamp: data.timestamp.toMillis?.() || data.timestamp || Date.now(),
+                pRecall: data.p_recall_after,
+                correct: data.correct || data.extra?.correct || false
+            });
+        }
+    });
+
+    return history;
+}
+
+/**
+ * Get detailed word recall data including current p_recall and attempt stats
+ * @param userId - User ID
+ * @param wordId - Word ID
+ * @param wordPRecall - Current p_recall from the word document (fallback if no p_recall_after in logs)
+ */
+export async function getWordRecallData(userId: string, wordId: string, wordPRecall?: number): Promise<WordRecallData> {
+    const logsRef = collection(db, "interaction_log")
+    const q = query(
+        logsRef,
+        where("userId", "==", userId),
+        where("wordId", "==", wordId),
+        orderBy("timestamp", "asc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    const history: RecallHistoryPoint[] = [];
+    let totalAttempts = 0;
+    let correctAttempts = 0;
+    let latestPRecall: number | null = null;
+
+    snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+
+        // Count all quiz attempts (quiz_mcq, quiz_flashcard, quiz_fill, smart_quiz, etc.)
+        const isQuizType = data.type?.startsWith('quiz_') || data.type === 'smart_quiz';
+        if (isQuizType) {
+            totalAttempts++;
+            if (data.correct || data.extra?.correct) {
+                correctAttempts++;
+            }
+        }
+
+        // Collect p_recall history
+        if (typeof data.p_recall_after === 'number') {
+            history.push({
+                timestamp: data.timestamp.toMillis?.() || data.timestamp || Date.now(),
+                pRecall: data.p_recall_after,
+                correct: data.correct || data.extra?.correct || false
+            });
+            latestPRecall = data.p_recall_after;
+        }
+    });
+
+    // Fallback: Use p_recall from words collection if no p_recall_after in logs
+    const finalPRecall = latestPRecall !== null ? latestPRecall : (wordPRecall ?? null);
+
+    return {
+        history,
+        currentPRecall: finalPRecall,
+        totalAttempts,
+        correctAttempts
+    };
+}
+
+/**
+ * Search for words belonging to a user.
+ */
+export async function searchUserWords(userId: string, searchTerm: string): Promise<Word[]> {
+    if (!searchTerm.trim()) {
+        return [];
+    }
+    
+    const wordsRef = collection(db, "words");
+    const q = query(
+        wordsRef,
+        where("userId", "==", userId),
+        orderBy("term"),
+        startAt(searchTerm.toLowerCase()),
+        endAt(searchTerm.toLowerCase() + "\uf8ff"),
+        limit(10)
+    );
+
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+        return [];
+    }
+    
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Word));
+}
+
 
 /**
  * Calculate word statistics from interaction logs

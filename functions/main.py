@@ -140,9 +140,10 @@ def create_features(interactions):
     df['history_seen'] = df.index
     
     # [Feature 3] History Correct: Số lần đúng tích lũy TRƯỚC ĐÓ
-    # Extract 'correct' from 'extra' field if it exists
-    if 'extra' in df.columns:
-        df['correct'] = df['extra'].apply(lambda x: x.get('correct', False) if isinstance(x, dict) else False)
+    # CORRECTED: The 'correct' field is at the top level of the interaction document, not nested in 'extra'.
+    # This now correctly reads the boolean 'correct' field, defaulting to False if it's missing.
+    if 'correct' in df.columns:
+        df['correct'] = df['correct'].fillna(False).astype(bool)
     else:
         df['correct'] = False
     
@@ -282,6 +283,7 @@ def on_interaction_log_written(event: firestore_fn.Event[firestore_fn.DocumentSn
     Recomputes per-word stats (consecutiveWrong, seenCount, etc.) and p_recall,
     then updates the words document with new flags and fresh prediction.
     """
+    doc_id = event.params.get('docId')
     after = event.data
     if not after:
         # Document was deleted, skip
@@ -358,6 +360,14 @@ def on_interaction_log_written(event: firestore_fn.Event[firestore_fn.DocumentSn
                 prediction = model.predict(input_data)
                 p_recall = float(prediction[0][0])
                 print(f"[Trigger] Recomputed p_recall for word {word_id}: {p_recall}")
+
+                # ---- START MODIFICATION: Update interaction_log with p_recall_after ----
+                if doc_id and p_recall is not None:
+                    log_ref_to_update = db.collection('interaction_log').document(doc_id)
+                    log_ref_to_update.update({'p_recall_after': p_recall})
+                    print(f"[Trigger] Updated interaction_log {doc_id} with p_recall_after.")
+                # ---- END MODIFICATION ----
+
             except Exception as e:
                 print(f"[Trigger] Failed to recompute p_recall: {e}")
                 # Keep existing p_recall if available

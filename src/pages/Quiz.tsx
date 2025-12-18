@@ -148,6 +148,9 @@ export default function Quiz({ user }: { user: User }) {
         setWords(prev => prev.map(w => w.id === currentWord.id ? { ...w, seenCount: (w.seenCount ?? 0) + 1 } : w))
         setQuizQueue(prev => prev.map(w => w.id === currentWord.id ? { ...w, seenCount: (w.seenCount ?? 0) + 1 } : w))
 
+        // Save p_recall_before for tracking
+        const pRecallBefore = currentWord.p_recall ?? null
+
         // record lightweight interaction (non-blocking)
         addDoc(collection(db, "interaction_log"), {
             userId: user.uid,
@@ -155,6 +158,7 @@ export default function Quiz({ user }: { user: User }) {
             type: `quiz_${mode}`,
             correct: !!isCorrect,
             timestamp: serverTimestamp(),
+            p_recall_before: pRecallBefore
         }).catch((e) => console.warn("Failed to record interaction (Quiz):", e))
 
         // attempt optimistic server update; if rules block this will fail but local state already reflects the change

@@ -167,16 +167,22 @@ export default function SmartQuiz({ user }: { user: User }) {
             return newResults
         })
 
-        // Record interaction to Firestore (server-side trigger will recompute stats)
+        // Record interaction to Firestore and update p_recall
+        // Save p_recall_before so we can track the change
+        const pRecallBefore = currentWord.p_recall ?? null;
+        let interactionDocId: string | null = null;
+
         try {
-            await addDoc(collection(db, "interaction_log"), {
+            const docRef = await addDoc(collection(db, "interaction_log"), {
                 userId: user.uid,
                 wordId: currentWord.id,
                 type: `quiz_${mode}`,
                 correct: !!isCorrect,
                 timestamp: serverTimestamp(),
-                extra: { mode: mode }
+                extra: { mode: mode },
+                p_recall_before: pRecallBefore // Save current p_recall before update
             })
+            interactionDocId = docRef.id
         } catch (err) {
             console.warn("Failed to record interaction:", err)
         }
@@ -194,8 +200,20 @@ export default function SmartQuiz({ user }: { user: User }) {
 
         // Update p_recall in background after interaction is saved
         // This ensures the word's p_recall reflects the latest learning state for next quiz
-        // Non-blocking: doesn't affect current quiz flow
-        updateWordRecall(currentWord.id).catch(err => {
+        // Also update the interaction_log with p_recall_after for analytics tracking
+        updateWordRecall(currentWord.id).then(async (newPRecall) => {
+            // If we have a new p_recall and an interaction doc ID, update the interaction_log
+            if (newPRecall !== undefined && interactionDocId) {
+                try {
+                    await updateDoc(doc(db, "interaction_log", interactionDocId), {
+                        p_recall_after: newPRecall
+                    })
+                    console.log(`Updated interaction_log ${interactionDocId} with p_recall_after: ${newPRecall}`)
+                } catch (e) {
+                    console.warn("Failed to update interaction_log with p_recall_after:", e)
+                }
+            }
+        }).catch(err => {
             // Silently ignore errors - this is background update, shouldn't block quiz
             console.warn("Background p_recall update failed (non-critical):", err)
         })

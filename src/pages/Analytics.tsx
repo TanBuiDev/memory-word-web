@@ -4,9 +4,12 @@ import { db } from "../firebase"
 import type { User } from "firebase/auth"
 import type { Word } from "../types/word"
 import { getUserProgress } from "../utils/streakService"
-import { getUserAnalytics } from "../utils/analyticsService"
+import { getUserAnalytics, searchUserWords, getWordRecallData, type RecallHistoryPoint } from "../utils/analyticsService"
 import type { UserProgress } from "../types/userProgress"
 import Header from "../features/learning/components/Header"
+import { useDebounce } from "../hooks/useDebounce"
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Scatter, ComposedChart } from 'recharts';
+
 
 interface AnalyticsData {
     totalAttempts: number
@@ -18,11 +21,40 @@ interface AnalyticsData {
     uniqueWordsStudied: number
 }
 
+// Custom tooltip for the chart
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        const data = payload[0].payload;
+        return (
+            <div className="bg-white p-2 border border-gray-300 rounded-lg shadow-lg">
+                <p className="font-bold">{new Date(label).toLocaleString()}</p>
+                <p className="text-indigo-600">{`p(recall): ${data.pRecall.toFixed(4)}`}</p>
+                <p style={{ color: data.correct ? 'green' : 'red' }}>
+                    {`Answer: ${data.correct ? 'Correct' : 'Incorrect'}`}
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
+
+
 export default function Analytics({ user }: { user: User }) {
     const [progress, setProgress] = useState<UserProgress | null>(null)
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
     const [hardestWords, setHardestWords] = useState<Word[]>([])
     const [loading, setLoading] = useState(true)
+
+    // State for P-Recall Analysis
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState<Word[]>([]);
+    const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+    const [recallHistory, setRecallHistory] = useState<RecallHistoryPoint[]>([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [wordStats, setWordStats] = useState<{ totalAttempts: number; correctAttempts: number; currentPRecall: number | null } | null>(null);
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
 
     useEffect(() => {
         // Inline the async loader to avoid missing-hook dependency warnings
@@ -57,6 +89,37 @@ export default function Analytics({ user }: { user: User }) {
         loadData()
     }, [user])
 
+    // Effect for searching words
+    useEffect(() => {
+        if (debouncedSearchTerm) {
+            searchUserWords(user.uid, debouncedSearchTerm).then(setSearchResults);
+        } else {
+            setSearchResults([]);
+        }
+    }, [debouncedSearchTerm, user.uid]);
+
+    // Effect for fetching recall history
+    useEffect(() => {
+        if (selectedWord) {
+            setHistoryLoading(true);
+            // Pass word's p_recall as fallback if no p_recall_after in interaction logs
+            getWordRecallData(user.uid, selectedWord.id, selectedWord.p_recall)
+                .then((data) => {
+                    setRecallHistory(data.history);
+                    setWordStats({
+                        totalAttempts: data.totalAttempts,
+                        correctAttempts: data.correctAttempts,
+                        currentPRecall: data.currentPRecall
+                    });
+                })
+                .finally(() => setHistoryLoading(false));
+        } else {
+            setRecallHistory([]);
+            setWordStats(null);
+        }
+    }, [selectedWord, user.uid]);
+
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -88,6 +151,116 @@ export default function Analytics({ user }: { user: User }) {
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-gray-800 mb-2">📊 Thống kê học tập</h1>
                     <p className="text-gray-600">Theo dõi tiến độ và phân tích hiệu quả học tập của bạn</p>
+                </div>
+
+                {/* P-Recall Analysis Section */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">📈 Phân tích P-Recall của từ vựng</h2>
+                    <p className="text-sm text-gray-500 mb-4">
+                        Chọn một từ để xem xác suất nhớ lại (p-recall) thay đổi như thế nào theo thời gian. Điều này cho thấy mô hình AI dự đoán khả năng bạn quên một từ.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Search Column */}
+                        <div className="md:col-span-1">
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm từ..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                            />
+                            <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                                {searchResults.map(word => (
+                                    <div
+                                        key={word.id}
+                                        onClick={() => {
+                                            setSelectedWord(word);
+                                            setSearchTerm('');
+                                            setSearchResults([]);
+                                        }}
+                                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md"
+                                    >
+                                        <p className="font-semibold">{word.term}</p>
+                                        <p className="text-sm text-gray-500">{word.shortMeaning}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        {/* Chart Column */}
+                        <div className="md:col-span-2">
+                            {selectedWord ? (
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Từ: "{selectedWord.term}"</h3>
+                                    <p className="text-sm text-gray-500 mb-4">{selectedWord.shortMeaning}</p>
+
+                                    {/* Word Stats Summary */}
+                                    {wordStats && (
+                                        <div className="grid grid-cols-3 gap-3 mb-4">
+                                            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
+                                                <p className="text-xs text-blue-600 font-semibold">Tổng lần làm</p>
+                                                <p className="text-2xl font-bold text-blue-800">{wordStats.totalAttempts}</p>
+                                            </div>
+                                            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
+                                                <p className="text-xs text-green-600 font-semibold">Lần đúng</p>
+                                                <p className="text-2xl font-bold text-green-800">{wordStats.correctAttempts}</p>
+                                            </div>
+                                            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
+                                                <p className="text-xs text-purple-600 font-semibold">P-Recall hiện tại</p>
+                                                <p className="text-2xl font-bold text-purple-800">
+                                                    {wordStats.currentPRecall !== null
+                                                        ? (wordStats.currentPRecall * 100).toFixed(1) + '%'
+                                                        : 'N/A'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {historyLoading ? (
+                                        <p>Đang tải lịch sử...</p>
+                                    ) : recallHistory.length > 0 ? (
+                                        <ResponsiveContainer width="100%" height={300}>
+                                            <ComposedChart data={recallHistory}>
+                                                <CartesianGrid strokeDasharray="3 3" />
+                                                <XAxis
+                                                    dataKey="timestamp"
+                                                    tickFormatter={(ts) => new Date(ts).toLocaleDateString()}
+                                                    type="number"
+                                                    domain={['dataMin', 'dataMax']}
+                                                />
+                                                <YAxis domain={[0, 1]} />
+                                                <Tooltip content={<CustomTooltip />} />
+                                                <Legend />
+                                                <Line type="monotone" dataKey="pRecall" stroke="#8884d8" strokeWidth={2} name="P(Recall)" dot={false} />
+                                                {recallHistory.map((entry, index) => (
+                                                    <Scatter
+                                                        key={index}
+                                                        dataKey="pRecall"
+                                                        data={[{ ...entry }]}
+                                                        fill={entry.correct ? 'green' : 'red'}
+                                                        shape="circle"
+                                                    />
+                                                ))}
+                                            </ComposedChart>
+                                        </ResponsiveContainer>
+                                    ) : (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                            <p className="text-blue-800 font-semibold mb-2">📊 Chưa có dữ liệu P-Recall</p>
+                                            <p className="text-sm text-blue-700 mb-3">
+                                                Từ này chưa được làm quiz hoặc chưa có đủ dữ liệu để tính toán xác suất nhớ lại.
+                                            </p>
+                                            <p className="text-sm text-blue-600">
+                                                💡 Hãy làm quiz với từ này để bắt đầu theo dõi tiến độ học tập!
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg">
+                                    <p className="text-gray-500">Vui lòng tìm và chọn một từ để xem biểu đồ.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Overview Cards */}
