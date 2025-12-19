@@ -32,7 +32,7 @@ export default function Login() {
             <div className="hidden lg:flex flex-col justify-center items-center w-1/2 p-16 bg-fuchsia-600 text-white relative overflow-hidden">
 
                 {/* Hình ảnh và hiệu ứng */}
-                <div className="absolute inset-0 opacity-10 bg-repeat [background-image:url('/dots.svg')]"></div>
+                <div className="absolute inset-0 opacity-20 bg-[size:20px_20px] bg-[radial-gradient(#ffffff_2px,transparent_2px)]"></div>
 
                 <h2 className="text-5xl font-extrabold mb-4 z-10 text-yellow-300">
                     MemoryWord
