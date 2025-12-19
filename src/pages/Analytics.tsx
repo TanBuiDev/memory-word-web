@@ -5,59 +5,68 @@ import type { User } from "firebase/auth"
 import type { Word } from "../types/word"
 import { getUserProgress } from "../utils/streakService"
 import { getUserAnalytics, searchUserWords, getWordRecallData, type RecallHistoryPoint } from "../utils/analyticsService"
-import type { UserProgress } from "../types/userProgress"
-import Header from "../features/learning/components/Header"
+import TradingChart from "../components/TradingChart"
 import { useDebounce } from "../hooks/useDebounce"
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Scatter, ComposedChart } from 'recharts';
+import memoaiLogo from "../assets/memoai-logo-transparent.png"
 
-
-interface AnalyticsData {
-    totalAttempts: number
-    totalCorrect: number
-    overallAccuracy: number
-    accuracyByDay: { date: string; accuracy: number; total: number }[]
-    hardestWordIds: string[]
-    typeBreakdown: { flashcard: number; mcq: number; fill: number }
-    uniqueWordsStudied: number
+// --- TYPES CHO UI ---
+interface UserProgressUI {
+    currentStreak: number;
+    totalWordsStudied: number;
+    todayProgress: number;
+    dailyGoal: number;
 }
 
-// Custom tooltip for the chart
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-        const data = payload[0].payload;
-        return (
-            <div className="bg-white p-2 border border-gray-300 rounded-lg shadow-lg">
-                <p className="font-bold">{new Date(label).toLocaleString()}</p>
-                <p className="text-indigo-600">{`p(recall): ${data.pRecall.toFixed(4)}`}</p>
-                <p style={{ color: data.correct ? 'green' : 'red' }}>
-                    {`Answer: ${data.correct ? 'Correct' : 'Incorrect'}`}
-                </p>
-            </div>
-        );
-    }
-    return null;
-};
+interface AnalyticsDataUI {
+    totalCorrect: number;
+    overallAccuracy: number;
+    uniqueWordsStudied: number;
+    hardestWordIds: string[];
+}
 
+interface StatProps {
+    label: string;
+    value: string | number;
+    subValue?: string;
+    change?: string;
+    isPositive?: boolean;
+    color?: string;
+}
+
+// --- SUB-COMPONENT: Stat Card với Light Theme ---
+const Stat = ({ label, value, subValue, change, isPositive, color = "text-gray-800" }: StatProps) => (
+    <div className="bg-white border border-gray-200 p-4 rounded-xl hover:bg-gray-50 hover:border-indigo-300 transition-all group shadow-sm">
+        <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2 group-hover:text-indigo-600">{label}</div>
+        <div className="flex items-baseline gap-2">
+            <div className={`text-xl font-black font-mono tracking-tighter ${color}`}>{value}</div>
+            {subValue && <span className="text-xs text-gray-500 font-semibold uppercase">{subValue}</span>}
+        </div>
+        {change && <div className={`text-xs font-bold mt-2 flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-500'}`}><span>{isPositive ? '▲' : '▼'}</span> {change}</div>}
+    </div>
+);
 
 export default function Analytics({ user }: { user: User }) {
-    const [progress, setProgress] = useState<UserProgress | null>(null)
-    const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-    const [hardestWords, setHardestWords] = useState<Word[]>([])
+    // --- STATE ---
+    const [progress, setProgress] = useState<UserProgressUI | null>(null)
+    const [analytics, setAnalytics] = useState<AnalyticsDataUI | null>(null)
     const [loading, setLoading] = useState(true)
 
-    // State for P-Recall Analysis
+    // Search & Chart State
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<Word[]>([]);
     const [selectedWord, setSelectedWord] = useState<Word | null>(null);
     const [recallHistory, setRecallHistory] = useState<RecallHistoryPoint[]>([]);
     const [historyLoading, setHistoryLoading] = useState(false);
-    const [wordStats, setWordStats] = useState<{ totalAttempts: number; correctAttempts: number; currentPRecall: number | null } | null>(null);
+    const [hardestWordsDetails, setHardestWordsDetails] = useState<Word[]>([]);
+
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
+    // Chart Domain State
+    const [xDomain, setXDomain] = useState<[number, number]>([0, 0]);
+    const [yDomain, setYDomain] = useState<[number, number]>([0, 1]);
 
+    // --- EFFECT 1: Load Initial Data (Firebase) ---
     useEffect(() => {
-        // Inline the async loader to avoid missing-hook dependency warnings
         const loadData = async () => {
             setLoading(true)
             try {
@@ -66,30 +75,41 @@ export default function Analytics({ user }: { user: User }) {
                     getUserAnalytics(user.uid)
                 ])
 
-                setProgress(progressData)
-                setAnalytics(analyticsData)
+                setProgress({
+                    currentStreak: progressData.currentStreak,
+                    totalWordsStudied: progressData.totalWordsStudied,
+                    todayProgress: progressData.todayProgress,
+                    dailyGoal: progressData.dailyGoal
+                })
 
-                // Load hardest words details
+                setAnalytics({
+                    totalCorrect: analyticsData.totalCorrect,
+                    overallAccuracy: analyticsData.overallAccuracy,
+                    uniqueWordsStudied: analyticsData.uniqueWordsStudied,
+                    hardestWordIds: analyticsData.hardestWordIds
+                })
+
+                // Fetch chi tiết các từ khó nhất để hiển thị tên
                 if (analyticsData.hardestWordIds.length > 0) {
                     const wordsRef = collection(db, "words")
-                    const q = query(wordsRef, where("userId", "==", user.uid))
-                    const snapshot = await getDocs(q)
-                    const allWords = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Word))
-                    const hardest = allWords.filter(w => analyticsData.hardestWordIds.includes(w.id))
-                    setHardestWords(hardest)
+                    // Firestore không hỗ trợ where("__name__", "in", ...), cần lấy tất cả rồi filter
+                    const q = query(wordsRef, where("userId", "==", user.uid));
+                    const snapshot = await getDocs(q);
+                    const allWords = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Word));
+                    const hardWords = allWords.filter(w => analyticsData.hardestWordIds.includes(w.id));
+                    setHardestWordsDetails(hardWords.slice(0, 10));
                 }
+
             } catch (error) {
                 console.error("Error loading analytics:", error)
             } finally {
                 setLoading(false)
             }
         }
-
-        // only run when `user` changes
-        loadData()
+        if (user) loadData()
     }, [user])
 
-    // Effect for searching words
+    // --- EFFECT 2: Search Words (Firebase) ---
     useEffect(() => {
         if (debouncedSearchTerm) {
             searchUserWords(user.uid, debouncedSearchTerm).then(setSearchResults);
@@ -98,314 +118,222 @@ export default function Analytics({ user }: { user: User }) {
         }
     }, [debouncedSearchTerm, user.uid]);
 
-    // Effect for fetching recall history
+    // --- EFFECT 3: Load History for Chart (Firebase) ---
     useEffect(() => {
         if (selectedWord) {
             setHistoryLoading(true);
-            // Pass word's p_recall as fallback if no p_recall_after in interaction logs
             getWordRecallData(user.uid, selectedWord.id, selectedWord.p_recall)
                 .then((data) => {
-                    setRecallHistory(data.history);
-                    setWordStats({
-                        totalAttempts: data.totalAttempts,
-                        correctAttempts: data.correctAttempts,
-                        currentPRecall: data.currentPRecall
-                    });
+                    const history = data.history;
+                    setRecallHistory(history);
+
+                    // Auto-zoom chart to data range (index-based)
+                    if (history.length > 0) {
+                        // Set domain based on array length with padding
+                        setXDomain([-0.5, history.length - 0.5]);
+                    } else {
+                        // Default domain when no data
+                        setXDomain([0, 5]);
+                    }
+                    setYDomain([0, 1]);
                 })
                 .finally(() => setHistoryLoading(false));
-        } else {
-            setRecallHistory([]);
-            setWordStats(null);
         }
     }, [selectedWord, user.uid]);
 
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <div className="animate-spin text-6xl mb-4">📊</div>
-                    <p className="text-gray-600 font-medium">Đang tải thống kê...</p>
-                </div>
+    if (loading) return (
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+            <div className="text-center">
+                <div className="animate-spin text-6xl mb-4">📊</div>
+                <p className="text-indigo-600 font-bold text-xl">Đang tải dữ liệu...</p>
             </div>
-        )
-    }
-
-    if (!progress || !analytics) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <p className="text-gray-600">Không có dữ liệu thống kê</p>
-            </div>
-        )
-    }
-
-    const accuracyPercent = Math.round(analytics.overallAccuracy * 100)
-    const last7Days = analytics.accuracyByDay.slice(-7)
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
-            <Header user={user} simple />
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-800 p-6">
+            <div className="max-w-[1500px] mx-auto space-y-6">
 
-            <div className="max-w-6xl mx-auto p-6 space-y-6">
-                {/* Page Title */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-2">📊 Thống kê học tập</h1>
-                    <p className="text-gray-600">Theo dõi tiến độ và phân tích hiệu quả học tập của bạn</p>
-                </div>
+                {/* HEADER */}
+                <div className="flex items-center justify-between gap-6 border-b border-gray-200 pb-6 bg-white rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <img src={memoaiLogo} alt="MemoryWord Logo" className="h-12 w-auto" />
+                        <div>
+                            <h1 className="text-2xl font-bold bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MemoryWord Analytics</h1>
+                            <p className="text-sm text-gray-500 font-medium">Phân tích tiến độ học từ vựng</p>
+                        </div>
+                    </div>
 
-                {/* P-Recall Analysis Section */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg">
-                    <h2 className="text-xl font-bold text-gray-800 mb-4">📈 Phân tích P-Recall của từ vựng</h2>
-                    <p className="text-sm text-gray-500 mb-4">
-                        Chọn một từ để xem xác suất nhớ lại (p-recall) thay đổi như thế nào theo thời gian. Điều này cho thấy mô hình AI dự đoán khả năng bạn quên một từ.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Search Column */}
-                        <div className="md:col-span-1">
-                            <input
-                                type="text"
-                                placeholder="Tìm kiếm từ..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md"
-                            />
-                            <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
-                                {searchResults.map(word => (
-                                    <div
-                                        key={word.id}
-                                        onClick={() => {
-                                            setSelectedWord(word);
-                                            setSearchTerm('');
-                                            setSearchResults([]);
-                                        }}
-                                        className="p-2 hover:bg-gray-100 cursor-pointer rounded-md"
+                    {/* SEARCH BAR */}
+                    <div className="relative flex-1 max-w-md">
+                        <input
+                            type="text"
+                            placeholder="🔍 Tìm kiếm từ vựng..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            className="w-full bg-white border border-gray-300 rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder-gray-400 text-gray-800 shadow-sm"
+                        />
+                        {searchResults.length > 0 && (
+                            <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                                {searchResults.map(w => (
+                                    <button
+                                        key={w.id}
+                                        onClick={() => { setSelectedWord(w); setSearchTerm(''); setSearchResults([]); }}
+                                        className="w-full text-left px-4 py-3 hover:bg-indigo-50 border-b border-gray-100 last:border-0 transition-all flex justify-between items-center group"
                                     >
-                                        <p className="font-semibold">{word.term}</p>
-                                        <p className="text-sm text-gray-500">{word.shortMeaning}</p>
-                                    </div>
+                                        <div>
+                                            <div className="font-bold text-gray-800 text-sm group-hover:text-indigo-600">{w.term}</div>
+                                            <div className="text-xs text-gray-500">{w.shortMeaning}</div>
+                                        </div>
+                                        <span className="text-xs font-bold text-indigo-600 opacity-0 group-hover:opacity-100">XEM</span>
+                                    </button>
                                 ))}
                             </div>
-                        </div>
-                        {/* Chart Column */}
-                        <div className="md:col-span-2">
-                            {selectedWord ? (
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Từ: "{selectedWord.term}"</h3>
-                                    <p className="text-sm text-gray-500 mb-4">{selectedWord.shortMeaning}</p>
-
-                                    {/* Word Stats Summary */}
-                                    {wordStats && (
-                                        <div className="grid grid-cols-3 gap-3 mb-4">
-                                            <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-lg p-3 border border-blue-200">
-                                                <p className="text-xs text-blue-600 font-semibold">Tổng lần làm</p>
-                                                <p className="text-2xl font-bold text-blue-800">{wordStats.totalAttempts}</p>
-                                            </div>
-                                            <div className="bg-linear-to-br from-green-50 to-green-100 rounded-lg p-3 border border-green-200">
-                                                <p className="text-xs text-green-600 font-semibold">Lần đúng</p>
-                                                <p className="text-2xl font-bold text-green-800">{wordStats.correctAttempts}</p>
-                                            </div>
-                                            <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-lg p-3 border border-purple-200">
-                                                <p className="text-xs text-purple-600 font-semibold">P-Recall hiện tại</p>
-                                                <p className="text-2xl font-bold text-purple-800">
-                                                    {wordStats.currentPRecall !== null
-                                                        ? (wordStats.currentPRecall * 100).toFixed(1) + '%'
-                                                        : 'N/A'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {historyLoading ? (
-                                        <p>Đang tải lịch sử...</p>
-                                    ) : recallHistory.length > 0 ? (
-                                        <ResponsiveContainer width="100%" height={300}>
-                                            <ComposedChart data={recallHistory}>
-                                                <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis
-                                                    dataKey="timestamp"
-                                                    tickFormatter={(ts) => new Date(ts).toLocaleDateString()}
-                                                    type="number"
-                                                    domain={['dataMin', 'dataMax']}
-                                                />
-                                                <YAxis domain={[0, 1]} />
-                                                <Tooltip content={<CustomTooltip />} />
-                                                <Legend />
-                                                <Line type="monotone" dataKey="pRecall" stroke="#8884d8" strokeWidth={2} name="P(Recall)" dot={false} />
-                                                {recallHistory.map((entry, index) => (
-                                                    <Scatter
-                                                        key={index}
-                                                        dataKey="pRecall"
-                                                        data={[{ ...entry }]}
-                                                        fill={entry.correct ? 'green' : 'red'}
-                                                        shape="circle"
-                                                    />
-                                                ))}
-                                            </ComposedChart>
-                                        </ResponsiveContainer>
-                                    ) : (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                            <p className="text-blue-800 font-semibold mb-2">📊 Chưa có dữ liệu P-Recall</p>
-                                            <p className="text-sm text-blue-700 mb-3">
-                                                Từ này chưa được làm quiz hoặc chưa có đủ dữ liệu để tính toán xác suất nhớ lại.
-                                            </p>
-                                            <p className="text-sm text-blue-600">
-                                                💡 Hãy làm quiz với từ này để bắt đầu theo dõi tiến độ học tập!
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-center h-full bg-gray-50 rounded-lg">
-                                    <p className="text-gray-500">Vui lòng tìm và chọn một từ để xem biểu đồ.</p>
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Overview Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Streak */}
-                    <div className="bg-linear-to-br from-orange-400 to-red-500 text-white rounded-2xl p-6 shadow-lg">
-                        <div className="text-5xl mb-2">🔥</div>
-                        <div className="text-3xl font-bold">{progress.currentStreak}</div>
-                        <div className="text-sm opacity-90">Ngày liên tiếp</div>
-                        <div className="text-xs mt-2 opacity-75">Kỷ lục: {progress.longestStreak} ngày</div>
-                    </div>
-
-                    {/* Total Words */}
-                    <div className="bg-linear-to-br from-blue-400 to-cyan-500 text-white rounded-2xl p-6 shadow-lg">
-                        <div className="text-5xl mb-2">📚</div>
-                        <div className="text-3xl font-bold">{analytics.uniqueWordsStudied}</div>
-                        <div className="text-sm opacity-90">Từ đã học</div>
-                        <div className="text-xs mt-2 opacity-75">Tổng: {progress.totalWordsStudied} lượt</div>
-                    </div>
-
-                    {/* Accuracy */}
-                    <div className="bg-linear-to-br from-green-400 to-emerald-500 text-white rounded-2xl p-6 shadow-lg">
-                        <div className="text-5xl mb-2">🎯</div>
-                        <div className="text-3xl font-bold">{accuracyPercent}%</div>
-                        <div className="text-sm opacity-90">Độ chính xác</div>
-                        <div className="text-xs mt-2 opacity-75">{analytics.totalCorrect}/{analytics.totalAttempts} đúng</div>
-                    </div>
-
-                    {/* Quizzes */}
-                    <div className="bg-linear-to-br from-purple-400 to-pink-500 text-white rounded-2xl p-6 shadow-lg">
-                        <div className="text-5xl mb-2">✅</div>
-                        <div className="text-3xl font-bold">{progress.totalQuizzesTaken}</div>
-                        <div className="text-sm opacity-90">Bài kiểm tra</div>
-                        <div className="text-xs mt-2 opacity-75">Hôm nay: {progress.todayProgress}/{progress.dailyGoal}</div>
-                    </div>
+                {/* METRICS GRID */}
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <Stat label="TỪ ĐÃ HỌC" value={analytics?.uniqueWordsStudied || 0} />
+                    <Stat
+                        label="TỶ LỆ NHỚ"
+                        value={`${Math.round((analytics?.overallAccuracy || 0) * 100)}%`}
+                        isPositive={analytics ? analytics.overallAccuracy > 0.7 : undefined}
+                        change={analytics && analytics.overallAccuracy > 0.7 ? "TỐT" : "THẤP"}
+                    />
+                    <Stat label="CHUỖI NGÀY" value={progress?.currentStreak || 0} subValue="ngày" isPositive />
+                    <Stat label="TỔNG LƯỢT" value={progress?.totalWordsStudied || 0} />
+                    <Stat label="MỤC TIÊU" value={`${progress?.todayProgress}/${progress?.dailyGoal}`} />
+                    <Stat label="CÂU ĐÚNG" value={analytics?.totalCorrect || 0} color="text-green-600" />
                 </div>
 
-                {/* Quiz Type Breakdown */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Accuracy Trend */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">📈 Xu hướng 7 ngày</h2>
-                        <div className="space-y-3">
-                            {last7Days.length > 0 ? last7Days.map((day, idx) => (
-                                <div key={idx} className="flex items-center gap-3">
-                                    <div className="text-xs text-gray-500 w-20">{day.date.slice(5)}</div>
-                                    <div className="flex-1 bg-gray-200 rounded-full h-6 overflow-hidden">
-                                        <div
-                                            className="bg-linear-to-r from-green-400 to-emerald-500 h-full flex items-center justify-end pr-2 text-xs text-white font-bold transition-all"
-                                            style={{ width: `${Math.round(day.accuracy * 100)}%` }}
+                {/* MAIN CONTENT GRID */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                    {/* CHART SECTION */}
+                    <div className="lg:col-span-9 space-y-4">
+                        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg relative">
+                            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                                        <button
+                                            onClick={() => {
+                                                const h = (yDomain[1] - yDomain[0]) * 0.8 / 2;
+                                                const c = (yDomain[0] + yDomain[1]) / 2;
+                                                setYDomain([Math.max(0, c - h), Math.min(1, c + h)]);
+                                            }}
+                                            className="w-8 h-8 flex items-center justify-center text-indigo-600 font-bold hover:bg-indigo-50 rounded text-xs"
+                                            title="Phóng to trục Y"
                                         >
-                                            {Math.round(day.accuracy * 100)}%
-                                        </div>
+                                            Y+
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const h = (yDomain[1] - yDomain[0]) * 1.2 / 2;
+                                                const c = (yDomain[0] + yDomain[1]) / 2;
+                                                setYDomain([Math.max(0, c - h), Math.min(1, c + h)]);
+                                            }}
+                                            className="w-8 h-8 flex items-center justify-center text-gray-500 font-bold hover:bg-gray-100 rounded text-xs"
+                                            title="Thu nhỏ trục Y"
+                                        >
+                                            Y-
+                                        </button>
                                     </div>
-                                    <div className="text-xs text-gray-400 w-12">{day.total} từ</div>
+                                    <button
+                                        onClick={() => {
+                                            if (recallHistory.length) {
+                                                setXDomain([-0.5, recallHistory.length - 0.5]);
+                                            } else {
+                                                setXDomain([0, 5]);
+                                            }
+                                            setYDomain([0, 1]);
+                                        }}
+                                        className="px-4 h-10 bg-indigo-600 text-white text-xs font-bold rounded-lg uppercase tracking-wider transition-all hover:bg-indigo-700 shadow-sm"
+                                    >
+                                        Đặt lại
+                                    </button>
                                 </div>
-                            )) : (
-                                <p className="text-gray-400 text-center py-4">Chưa có dữ liệu</p>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Quiz Type Breakdown */}
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">🎮 Loại câu hỏi</h2>
-                        <div className="space-y-4">
-                            <div>
-                                <div className="flex justify-between mb-1">
-                                    <span className="text-sm text-gray-600">🃏 Flashcard</span>
-                                    <span className="text-sm font-bold text-gray-800">{analytics.typeBreakdown.flashcard}</span>
-                                </div>
-                                <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-                                    <div
-                                        className="bg-linear-to-r from-cyan-400 to-blue-500 h-full"
-                                        style={{ width: `${(analytics.typeBreakdown.flashcard / analytics.totalAttempts) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between mb-1">
-                                    <span className="text-sm text-gray-600">📝 Trắc nghiệm</span>
-                                    <span className="text-sm font-bold text-gray-800">{analytics.typeBreakdown.mcq}</span>
-                                </div>
-                                <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-                                    <div
-                                        className="bg-linear-to-r from-purple-400 to-pink-500 h-full"
-                                        style={{ width: `${(analytics.typeBreakdown.mcq / analytics.totalAttempts) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <div className="flex justify-between mb-1">
-                                    <span className="text-sm text-gray-600">✍️ Điền từ</span>
-                                    <span className="text-sm font-bold text-gray-800">{analytics.typeBreakdown.fill}</span>
-                                </div>
-                                <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
-                                    <div
-                                        className="bg-linear-to-r from-green-400 to-emerald-500 h-full"
-                                        style={{ width: `${(analytics.typeBreakdown.fill / analytics.totalAttempts) * 100}%` }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Hardest Words */}
-                {hardestWords.length > 0 && (
-                    <div className="bg-white rounded-2xl p-6 shadow-lg">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">😰 Từ khó nhất (cần ôn lại)</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {hardestWords.slice(0, 6).map((word) => (
-                                <div key={word.id} className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h3 className="font-bold text-gray-800">{word.term}</h3>
-                                            <p className="text-sm text-gray-600">{word.shortMeaning}</p>
-                                        </div>
-                                        <span className="text-2xl">⚠️</span>
+                                {selectedWord && (
+                                    <div className="text-xs font-mono text-right">
+                                        <span className="text-gray-500">ĐANG XEM:</span>
+                                        <span className="text-gray-800 font-bold ml-2">{selectedWord.term.toUpperCase()}</span>
                                     </div>
-                                </div>
-                            ))}
+                                )}
+                            </div>
+
+                            <div className="h-[600px] relative bg-white">
+                                {selectedWord ? (
+                                    <TradingChart
+                                        data={recallHistory}
+                                        xDomain={xDomain}
+                                        yDomain={yDomain}
+                                        onDomainChange={(x: [number, number], y: [number, number]) => { setXDomain(x); setYDomain(y); }}
+                                        onReset={() => { }}
+                                    />
+                                ) : (
+                                    <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-gradient-to-br from-indigo-50 to-purple-50 space-y-6">
+                                        <div className="w-24 h-24 bg-white border border-gray-200 rounded-full flex items-center justify-center text-4xl shadow-lg">📈</div>
+                                        <h3 className="text-2xl font-bold text-gray-800">Chọn từ vựng để xem biểu đồ</h3>
+                                        <p className="text-gray-600 max-w-sm text-sm leading-relaxed">
+                                            Sử dụng thanh tìm kiếm ở trên để chọn một từ vựng và xem biểu đồ P-Recall theo thời gian của từ đó.
+                                        </p>
+                                    </div>
+                                )}
+                                {historyLoading && (
+                                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center text-indigo-600 font-bold tracking-wider">
+                                        ĐANG TẢI DỮ LIỆU...
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                )}
 
-                {/* Motivational Message */}
-                <div className="bg-linear-to-r from-fuchsia-500 to-purple-600 text-white rounded-2xl p-8 text-center shadow-lg">
-                    <div className="text-6xl mb-4">
-                        {progress.currentStreak >= 7 ? "🏆" : progress.currentStreak >= 3 ? "🌟" : "💪"}
+                    {/* SIDEBAR: Alerts & Strategy */}
+                    <div className="lg:col-span-3 space-y-6">
+
+                        {/* Hardest Words Alert */}
+                        <div className="bg-white border border-red-200 rounded-2xl p-6 shadow-lg relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600 mb-4 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                Từ cần ôn lại
+                            </h3>
+                            <div className="space-y-3">
+                                {hardestWordsDetails.length > 0 ? hardestWordsDetails.map(word => (
+                                    <div key={word.id} className="p-3 bg-red-50 border border-red-200 rounded-xl group hover:border-red-400 transition-all cursor-pointer">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="font-bold text-xs text-red-600 tracking-wider uppercase">Cần ôn</span>
+                                        </div>
+                                        <div className="text-sm text-gray-800 font-bold uppercase tracking-tight">{word.term}</div>
+                                        <div className="text-xs text-gray-600 truncate">{word.shortMeaning}</div>
+                                        <button className="mt-3 w-full py-1.5 bg-white group-hover:bg-red-600 group-hover:text-white text-red-600 rounded-lg font-bold text-xs transition-all uppercase">
+                                            Ôn lại
+                                        </button>
+                                    </div>
+                                )) : (
+                                    <div className="text-center text-xs text-gray-400 py-4">Không có từ cần ôn</div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Strategy / Recommendation */}
+                        <div className="bg-linear-to-br from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                            <div className="text-xs font-bold uppercase tracking-wider opacity-80 mb-4">Khuyến nghị</div>
+                            <h3 className="text-xl font-bold mb-2">
+                                {progress && progress.currentStreak > 3 ? "Tiến độ tốt! 🎉" : "Tiếp tục cố gắng! 💪"}
+                            </h3>
+                            <p className="text-xs opacity-90 leading-relaxed mb-6">
+                                {analytics && analytics.overallAccuracy > 0.8
+                                    ? "Tỷ lệ nhớ của bạn rất cao. Hãy thử thách bản thân với nhiều từ mới hơn!"
+                                    : "Tỷ lệ nhớ đang ổn định. Hãy tập trung củng cố các từ hiện có để tăng độ bền vững."}
+                            </p>
+                            <button className="w-full bg-white text-indigo-600 py-3 rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-wider shadow-lg">
+                                Bắt đầu học
+                            </button>
+                        </div>
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">
-                        {progress.currentStreak >= 7
-                            ? "Xuất sắc! Bạn đang rất kiên trì!"
-                            : progress.currentStreak >= 3
-                                ? "Tuyệt vời! Tiếp tục phát huy!"
-                                : "Hãy học đều đặn mỗi ngày!"}
-                    </h2>
-                    <p className="opacity-90">
-                        {accuracyPercent >= 80
-                            ? "Độ chính xác của bạn rất cao. Hãy thử thách bản thân với nhiều từ mới hơn!"
-                            : "Hãy tiếp tục luyện tập để cải thiện độ chính xác!"}
-                    </p>
+
                 </div>
             </div>
         </div>

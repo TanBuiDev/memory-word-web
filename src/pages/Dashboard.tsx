@@ -89,7 +89,7 @@ export default function Dashboard() {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(20) // 20 words per page
 
-    // 🟣 Form nhập tay TOEIC
+    // Form nhập tay TOEIC
     const [showManualForm, setShowManualForm] = useState(false)
     const [manualTerm, setManualTerm] = useState("")
     const [manualPhonetic, setManualPhonetic] = useState("")
@@ -139,7 +139,7 @@ export default function Dashboard() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, words.length])
 
-    // 🟣 Hàm thêm trường nghĩa
+    // Hàm thêm trường nghĩa
     const addMoreMeaning = () => {
         setManualMeanings([...manualMeanings, { pos: "", meaning: "" }])
     }
@@ -154,7 +154,7 @@ export default function Dashboard() {
         setManualMeanings(updated)
     }
 
-    // 🟣 RESET FORM
+    // RESET FORM
     const resetForm = () => {
         setShowManualForm(false)
         setIsEditingToeic(false)
@@ -168,7 +168,7 @@ export default function Dashboard() {
         setManualTags("")
     }
 
-    // 🟣 LƯU TỪ TOEIC MỚI
+    // LƯU TỪ TOEIC MỚI
     const saveToeicWord = async () => {
         if (!user) return
 
@@ -204,7 +204,7 @@ export default function Dashboard() {
         resetForm()
     }
 
-    // 🟣 CẬP NHẬT TỪ TOEIC
+    // CẬP NHẬT TỪ TOEIC
     const updateToeicWord = async () => {
         if (!editingWordId) return
 
@@ -312,7 +312,7 @@ export default function Dashboard() {
             {/* Main Layout - Three Column */}
             <div className="flex min-h-screen pt-24">
                 {/* Left Sidebar - Desktop */}
-                <aside className="hidden lg:block w-85 shrink-0 border-r border-gray-200 bg-white/50 backdrop-blur-sm sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
+                <aside className="hidden lg:block shrink-0 border-r border-gray-200 bg-white/50 backdrop-blur-sm sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
                     <Sidebar
                         user={user}
                         words={words}
@@ -457,7 +457,7 @@ export default function Dashboard() {
                 </main>
 
                 {/* Right Sidebar - Filters & Stats */}
-                <aside className="hidden lg:block w-85 shrink-0 sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
+                <aside className="hidden lg:block shrink-0 sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
                     <RightSidebar
                         user={user}
                         isOpen={showRightSidebar}
