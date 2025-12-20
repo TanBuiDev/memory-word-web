@@ -94,12 +94,12 @@ const Header = () => {
                 transition-all duration-500 ease-in-out border
                 ${isHeaderHidden ? '-translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}
                 ${isScrolled
-                    ? 'bg-linear-to-r from-gray-900/80 to-indigo-950/80 backdrop-blur-xl shadow-2xl border-indigo-500/30'
-                    : 'bg-linear-to-r from-gray-900/90 to-indigo-950/90 backdrop-blur-lg border-white/20'
+                    ? 'bg-gradient-to-r from-gray-900/85 to-indigo-950/85 backdrop-blur-xl shadow-2xl shadow-indigo-500/20 border-indigo-500/30'
+                    : 'bg-gradient-to-r from-gray-900/90 to-indigo-950/90 backdrop-blur-lg border-white/20'
                 }
-                hover:shadow-2xl hover:border-indigo-400/40
+                hover:shadow-2xl hover:shadow-indigo-500/30 hover:border-indigo-400/50
             `}
-            style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+            style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
         >
             {/* Background Elements (Giữ nguyên) */}
             <div className="absolute inset-0 overflow-hidden rounded-2xl">

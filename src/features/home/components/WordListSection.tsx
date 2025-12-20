@@ -25,10 +25,12 @@ export default function WordListSection({
 }: WordListSectionProps) {
     if (words.length === 0) {
         return (
-            <div className="text-center py-12 bg-white/70 rounded-2xl shadow-sm">
-                <div className="text-gray-400 text-6xl mb-4">📚</div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">No words found</h3>
-                <p className="text-gray-500">
+            <div className="text-center py-16 bg-white/80 backdrop-blur-md rounded-2xl shadow-lg shadow-indigo-100/20 border border-gray-200/60">
+                <div className="text-7xl mb-6 animate-float">📚</div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-indigo-800 bg-clip-text text-transparent mb-3">
+                    No words found
+                </h3>
+                <p className="text-gray-600 text-lg font-medium">
                     {searchInput ? 'Try a different search term' : 'Start by adding your first word!'}
                 </p>
             </div>

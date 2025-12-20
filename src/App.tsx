@@ -12,6 +12,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import Login from './features/auth/pages/Login';
 import Register from './features/auth/pages/Register';
+import Leaderboard from './features/leaderboard';
 import Background from "./components/layout/Background"
 import { useAuthStore } from "./stores/useAuthStore";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
@@ -148,6 +149,12 @@ export default function App() {
           <Route path="/settings" element={
             <ProtectedRoute>
               <SettingsWrapper />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/leaderboard" element={
+            <ProtectedRoute>
+              <Leaderboard />
             </ProtectedRoute>
           } />
 

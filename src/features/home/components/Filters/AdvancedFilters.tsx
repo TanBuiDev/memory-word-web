@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { CheckCircle2, Calendar, Gauge, RotateCcw, Tag } from "lucide-react"
 import type { User } from "firebase/auth"
 import type { FilterShape } from "../../../../types/filters"
 import { defaultFilters } from "../../../../types/filters"
@@ -111,10 +112,11 @@ export default function AdvancedFilters({
     }
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
             {/* Status Filter */}
             <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-indigo-600" />
                     Status
                 </label>
                 <select
@@ -125,7 +127,7 @@ export default function AdvancedFilters({
                             e.target.value as FilterShape["filterMemorized"]
                         )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full px-3 py-2.5 border border-gray-300/60 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-gray-400"
                 >
                     <option value="all">All Words</option>
                     <option value="memorized">✓ Memorized</option>
@@ -135,7 +137,8 @@ export default function AdvancedFilters({
 
             {/* Date Range */}
             <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                    <Calendar className="h-3.5 w-3.5 text-indigo-600" />
                     Date Range
                 </label>
                 <div className="space-y-2">
@@ -146,7 +149,7 @@ export default function AdvancedFilters({
                             handleField("filterDateFrom", e.target.value || undefined)
                         }
                         placeholder="From"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                        className="w-full px-3 py-2.5 border border-gray-300/60 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-gray-400"
                     />
                     <input
                         type="date"
@@ -155,14 +158,15 @@ export default function AdvancedFilters({
                             handleField("filterDateTo", e.target.value || undefined)
                         }
                         placeholder="To"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                        className="w-full px-3 py-2.5 border border-gray-300/60 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-gray-400"
                     />
                 </div>
             </div>
 
             {/* Difficulty */}
             <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-2">
+                    <Gauge className="h-3.5 w-3.5 text-indigo-600" />
                     Difficulty Level
                 </label>
                 <select
@@ -170,7 +174,7 @@ export default function AdvancedFilters({
                     onChange={(e) =>
                         handleField("filterDifficulty", e.target.value || undefined)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                    className="w-full px-3 py-2.5 border border-gray-300/60 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-gray-400"
                 >
                     <option value="">All Levels</option>
                     {difficulties.map((d) => (
@@ -195,8 +199,9 @@ export default function AdvancedFilters({
                         setLocal(reset)
                         if (onChange) onChange(reset)
                     }}
-                    className="w-full px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+                    className="w-full px-4 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-700 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
                 >
+                    <RotateCcw className="h-4 w-4" />
                     Reset Filters
                 </button>
             )}

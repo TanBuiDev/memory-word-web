@@ -230,13 +230,15 @@ export default function SmartQuiz({ user }: { user: User }) {
 
     const handleQuizComplete = async (correctCount: number, totalCount: number) => {
         try {
-            // Record quiz completion and update streak
-            const [, streakResult] = await Promise.all([
-                recordQuizCompletion(user.uid, correctCount, totalCount),
-                updateStreak(user.uid)
-            ])
+            // IMPORTANT: Update streak FIRST, then record completion
+            // This ensures todayProgress is not reset after being incremented
+            const streakResult = await updateStreak(user.uid)
+            
+            // Then record quiz completion (this will increment todayProgress)
+            await recordQuizCompletion(user.uid, correctCount, totalCount)
 
             console.log(`✅ Quiz completed: ${correctCount}/${totalCount}`)
+            console.log(`🔥 Current streak: ${streakResult.currentStreak} days`)
 
             // Show celebration if streak is significant (3+ days) or new record
             if (streakResult.currentStreak >= 3 || streakResult.isNewRecord) {

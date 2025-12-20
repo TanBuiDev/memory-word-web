@@ -19,9 +19,9 @@ export default function CategoryFilter({
             <div className="flex flex-wrap gap-2">
                 <button
                     onClick={() => setActiveListId(null)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${activeListId === null
-                        ? "bg-linear-to-r from-indigo-500 to-purple-600 text-white shadow-lg"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${activeListId === null
+                        ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:scale-105"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md border border-gray-200/60"
                         }`}
                 >
                     All Words ({totalWords})
@@ -31,9 +31,9 @@ export default function CategoryFilter({
                     <button
                         key={list.id}
                         onClick={() => setActiveListId(list.id)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${activeListId === list.id
-                            ? "bg-linear-to-r from-indigo-500 to-purple-600 text-white shadow-lg"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${activeListId === list.id
+                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:scale-105"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md border border-gray-200/60"
                             }`}
                     >
                         {list.name} ({list.words.length})

@@ -39,6 +39,7 @@ import DeleteConfirmationModal from "../features/home/components/DeleteConfirmat
 import { useWordCollection } from "../features/home/hooks/useWordCollection"
 import { useWordActions } from "../features/home/hooks/useWordActions"
 import { useDashboardState } from "../features/home/hooks/useDashboardState"
+import Footer from "../components/layout/Footer"
 
 export default function Dashboard() {
     const { user } = useAuthStore();
@@ -297,22 +298,22 @@ export default function Dashboard() {
             {/* Mobile Menu Buttons */}
             <button
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                className="fixed top-24 left-4 z-40 lg:hidden p-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg"
+                className="fixed top-28 left-4 z-40 lg:hidden p-3 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
-                {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
+                {showMobileMenu ? <X size={22} className="text-gray-700" /> : <Menu size={22} className="text-gray-700" />}
             </button>
 
             <button
                 onClick={() => setShowRightSidebar(!showRightSidebar)}
-                className="fixed top-24 right-4 z-40 lg:hidden p-2 bg-white/80 backdrop-blur-sm rounded-lg shadow-lg"
+                className="fixed top-28 right-4 z-40 lg:hidden p-3 bg-white/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/60 hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
-                {showRightSidebar ? <X size={24} /> : <Menu size={24} />}
+                {showRightSidebar ? <X size={22} className="text-gray-700" /> : <Menu size={22} className="text-gray-700" />}
             </button>
 
             {/* Main Layout - Three Column */}
-            <div className="flex min-h-screen pt-24">
+            <div className="flex min-h-screen pt-28">
                 {/* Left Sidebar - Desktop */}
-                <aside className="hidden lg:block shrink-0 border-r border-gray-200 bg-white/50 backdrop-blur-sm sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
+                <aside className="hidden lg:block shrink-0 border-r border-gray-200/80 bg-white/60 backdrop-blur-md sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar shadow-sm  rounded-3xl">
                     <Sidebar
                         user={user}
                         words={words}
@@ -346,13 +347,13 @@ export default function Dashboard() {
                 </aside>
 
                 {/* Main Content - Center Column */}
-                <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-                    <div className="max-w-4xl mx-auto space-y-6">
+                <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                    <div className="max-w-5xl mx-auto space-y-6">
                         {/* Welcome Header */}
                         <WelcomeBanner user={user} />
 
                         {/* Search Bar */}
-                        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 p-4 relative z-30">
+                        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg shadow-indigo-100/20 border border-gray-200/60 p-5 relative z-30 hover:shadow-xl hover:shadow-indigo-100/30 transition-all duration-300">
                             <WordSearchBar
                                 value={searchInput}
                                 onChange={setSearchInput}
@@ -408,7 +409,7 @@ export default function Dashboard() {
                         )}
 
                         {/* Category & Sort Section */}
-                        <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200 p-5">
+                        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg shadow-indigo-100/20 border border-gray-200/60 p-6 hover:shadow-xl hover:shadow-indigo-100/30 transition-all duration-300">
                             {/* Category Tabs */}
                             <CategoryFilter
                                 lists={lists}
@@ -442,7 +443,7 @@ export default function Dashboard() {
 
                             {/* Pagination */}
                             {filteredWords.length > 0 && (
-                                <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-200">
+                                <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg shadow-indigo-100/20 border border-gray-200/60">
                                     <Pagination
                                         currentPage={currentPage}
                                         totalPages={totalPages}
@@ -457,7 +458,7 @@ export default function Dashboard() {
                 </main>
 
                 {/* Right Sidebar - Filters & Stats */}
-                <aside className="hidden lg:block shrink-0 sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
+                <aside className="hidden lg:block shrink-0 sticky top-28 h-[calc(100vh-7rem)] overflow-y-auto no-scrollbar border-l border-gray-200/80 bg-white/60 backdrop-blur-md shadow-sm rounded-3xl">
                     <RightSidebar
                         user={user}
                         isOpen={showRightSidebar}
@@ -524,6 +525,7 @@ export default function Dashboard() {
             )}
 
             <ScrollToTopButton />
+            <Footer />
         </div>
     )
 }
