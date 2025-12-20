@@ -18,12 +18,10 @@ import { useAuthStore } from "./stores/useAuthStore";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeProvider";
 
-//Route Guards
-//Chỉ cho phép User đã đăng nhập vào
+// 1. ProtectedRoute: Chỉ cho phép User đã đăng nhập VÀ đã verify email
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuthStore();
 
-  // Khi đang kiểm tra xem user là ai, hiện màn hình loading
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
@@ -31,13 +29,15 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       </div>
     );
   }
-  // Nếu không có user -> Đá về trang Login
+
   if (!user) return <Navigate to="/" replace />;
+  // Nếu chưa verify email -> Về Login
+  if (!user.emailVerified) return <Navigate to="/login" replace />;
 
   return children;
 };
 
-// 2. PublicRoute: Chỉ cho phép User CHƯA đăng nhập vào
+// 2. PublicRoute: Chỉ cho phép User CHƯA đăng nhập HOẶC chưa verify email
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuthStore();
 
@@ -49,8 +49,8 @@ const PublicRoute = ({ children }: { children: JSX.Element }) => {
     );
   }
 
-  // Nếu đã có user -> Đá thẳng vào Dashboard
-  if (user) return <Navigate to="/dashboard" replace />; // ĐỔI TỪ /home THÀNH /dashboard
+  // Nếu đã login VÀ đã verify -> Đá thẳng vào Dashboard
+  if (user && user.emailVerified) return <Navigate to="/dashboard" replace />;
 
   return children;
 };

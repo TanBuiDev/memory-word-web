@@ -242,6 +242,11 @@ const Footer = () => {
                         <p className="text-xs text-gray-600 mt-2">
                             MemoryWord sử dụng mô hình SSA-LSTM được huấn luyện trên 1.5 triệu điểm dữ liệu học tập.
                         </p>
+                        <p className="text-[10px] text-gray-400 mt-4">
+                            This site is protected by reCAPTCHA and the Google
+                            <a href="https://policies.google.com/privacy" className="hover:underline"> Privacy Policy</a> and
+                            <a href="https://policies.google.com/terms" className="hover:underline"> Terms of Service</a> apply.
+                        </p>
                     </div>
 
                     {/* Back to Top Button */}

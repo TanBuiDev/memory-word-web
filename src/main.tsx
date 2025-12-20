@@ -3,8 +3,12 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <GoogleReCaptchaProvider reCaptchaKey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "YOUR_SITE_KEY_PLACEHOLDER"}>
+      <App />
+    </GoogleReCaptchaProvider>
   </StrictMode>,
 )

@@ -2,14 +2,18 @@
 
 html {
   scroll-behavior: smooth;
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 body {
-  -ms-overflow-style: none; /* IE/Edge */
+  -ms-overflow-style: none;
+  /* IE/Edge */
 }
+
 body::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
+  /* Chrome/Safari */
 }
 
 /* Dark mode base styles */
@@ -17,7 +21,7 @@ body::-webkit-scrollbar {
   :root {
     color-scheme: light;
   }
-  
+
   .dark {
     color-scheme: dark;
   }
@@ -29,19 +33,23 @@ body::-webkit-scrollbar {
       opacity: 0;
       transform: translateY(6px);
     }
+
     15% {
       opacity: 1;
       transform: translateY(0);
     }
+
     85% {
       opacity: 1;
       transform: translateY(0);
     }
+
     100% {
       opacity: 0;
       transform: translateY(-4px);
     }
   }
+
   .animate-fade-smooth {
     animation: fadeSlide 2.2s cubic-bezier(0.25, 0.8, 0.25, 1) both;
   }
@@ -53,8 +61,10 @@ body::-webkit-scrollbar {
 
   /* Ẩn thanh cuộn cho IE, Edge và Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }
 
@@ -63,11 +73,13 @@ body::-webkit-scrollbar {
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .animate-fade-in {
   animation: fade-in 0.12s ease-out;
 }
@@ -77,6 +89,7 @@ body::-webkit-scrollbar {
     transform: scale(0.85);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -105,78 +118,114 @@ body::-webkit-scrollbar {
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes pulseGlow {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes particleFloat {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 0.3;
-    }
-    50% { 
-        transform: scale(1.2);
-        opacity: 0.6;
-    }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 0.6;
+  }
 }
 
 .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
+  animation: fadeInUp 0.8s ease-out forwards;
 }
 
 .animate-float {
-    animation: float 3s ease-in-out infinite;
+  animation: float 3s ease-in-out infinite;
 }
 
 .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
+  animation: pulseGlow 2s ease-in-out infinite;
 }
 
 .animate-particle {
-    animation: particleFloat 4s ease-in-out infinite;
+  animation: particleFloat 4s ease-in-out infinite;
 }
 
 .animation-delay-200 {
-    animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 
 .animation-delay-400 {
-    animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 
 .animation-delay-600 {
-    animation-delay: 0.6s;
+  animation-delay: 0.6s;
 }
 
 .animation-delay-800 {
-    animation-delay: 0.8s;
+  animation-delay: 0.8s;
 }
 
 @keyframes bounce-slow {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-bounce-slow {
-    animation: bounce-slow 2s ease-in-out infinite;
+  animation: bounce-slow 2s ease-in-out infinite;
+}
+
+/* Ẩn biểu tượng reCAPTCHA v3 */
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
+/* Fix browser autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
