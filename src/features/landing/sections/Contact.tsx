@@ -45,25 +45,28 @@ const ContactSection = () => {
 
         setIsSubmitting(true);
 
-        // Simulate API call
         try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Import lazily to avoid top-level issues if not used
+            const { functions } = await import('../../../firebase');
+            const { httpsCallable } = await import('firebase/functions');
 
-            // Gợi ý 3: Gửi data thực tế đến backend
-            // const response = await fetch('/api/contact', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(formData)
-            // });
+            const submitContact = httpsCallable(functions, 'submit_contact');
+
+            const result = await submitContact(formData);
+            const data = result.data as any;
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
 
             setIsSubmitted(true);
             setFormData({ name: '', email: '', message: '' });
 
             // Gợi ý 4: Auto reset success message sau 5s
             setTimeout(() => setIsSubmitted(false), 5000);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Gửi thất bại:', error);
-            setErrors({ submit: 'Có lỗi xảy ra, vui lòng thử lại sau' });
+            setErrors({ submit: error.message || 'Có lỗi xảy ra, vui lòng thử lại sau' });
         } finally {
             setIsSubmitting(false);
         }

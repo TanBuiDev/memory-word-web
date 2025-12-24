@@ -4,17 +4,9 @@ import numpy as np
 import pandas as pd
 from firebase_functions import https_fn, options
 from firebase_admin import initialize_app, firestore
-# Enable CORS for browser preflight requests. The firebase_functions runtime
-# exposes an internal Flask app used for serving function endpoints; we can
-# attach Flask-Cors to it so OPTIONS preflight requests get handled and the
-# Access-Control-Allow-Origin header is present.
-try:
-    from firebase_functions.private import serving
-    from flask_cors import CORS
-    CORS(serving.app, resources={r"/*": {"origins": "*"}})
-    print("CORS enabled on functions serving app")
-except Exception as e:
-    print(f"Could not enable Flask-Cors: {e}")
+# Enable CORS for browser preflight requests.
+# Note: https_fn.on_call automatically handles CORS for client SDK calls.
+# If manual HTTP endpoints are added later, handle CORS within those functions or using a supported method.
 
 # Do NOT create a Firestore client at import time.
 # During `firebase deploy` / emulator analysis the runtime may not have
@@ -268,6 +260,48 @@ def predict_recall(req: https_fn.CallableRequest) -> https_fn.Response:
         print(f"Prediction Error: {e}")
         # Trả về lỗi hoặc giá trị mặc định an toàn
         return {"error": str(e), "p_recall": 0.5}
+
+
+# --- CONTACT FORM API ---
+@https_fn.on_call(
+    region="asia-southeast1",
+    memory=options.MemoryOption.MB_256 # Nhẹ nhàng cho tác vụ lưu DB
+)
+def submit_contact(req: https_fn.CallableRequest) -> https_fn.Response:
+    """
+    API nhận tin nhắn từ form liên hệ.
+    Input: { "name": "...", "email": "...", "message": "..." }
+    Output: { "success": true, "id": "..." }
+    """
+    try:
+        data = req.data
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
+
+        # Basic validation
+        if not name or not email or not message:
+            return {"error": "Missing required fields (name, email, message)"}
+
+        # Lưu vào Firestore
+        _client = get_db()
+        if not _client:
+             return {"error": "Server Error: Database not available"}
+
+        doc_ref = _client.collection('contact_messages').add({
+            'name': name,
+            'email': email,
+            'message': message,
+            'timestamp': firestore.SERVER_TIMESTAMP,
+            'userId': req.auth.uid if req.auth else None, # Optional: link to user if logged in
+            'status': 'new'
+        })
+        
+        return {"success": True, "id": doc_ref[1].id}
+
+    except Exception as e:
+        print(f"Contact Submit Error: {e}")
+        return {"error": str(e)}
 
 
 # --- FIRESTORE TRIGGER: Recompute stats & p_recall on new interaction ---
